@@ -12,8 +12,8 @@ public class Review {
     private Long id;
     // TODO: put Product class field here for 'product'
     // TODO: put User class field here for 'author'
-    int rating; // 0 - 5 stars
-    String text;
+    private int rating; // 0 - 5 stars
+    private String text;
 
     protected Review() {}
 
