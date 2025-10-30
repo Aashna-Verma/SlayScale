@@ -1,35 +1,55 @@
 package org.slayscale;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReviewTest {
+    private Review review;
+
+    @BeforeEach
+    public void setUp() {
+        review = new Review(3, "Good product");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        review = null;
+    }
 
     @Test
     void getId() {
-        Review review = new Review(3, "Good product");
         review.setId(3L);
         assertEquals(3L, review.getId());
     }
 
     @Test
     void setId() {
-        Review review = new Review(3, "Good product");
         review.setId(67L);
         assertEquals(67L, review.getId());
     }
 
     @Test
+    void getAuthor() {
+        assertNull(review.getAuthor());
+    }
+
+    @Test
+    void setAuthor() {
+        User user = new User("Jian", "Yang", "Jian@Yang.ca", "pwd");
+        review.setAuthor(user);
+        assertEquals("Jian", review.getAuthor().getFirstName());
+    }
+
+    @Test
     void getRating() {
-        Review review = new Review(3, "Good product");
         assertEquals(3, review.getRating());
     }
 
     @Test
     void setRating() {
-        Review review = new Review(3, "Good product");
-
         assertThrows(IllegalArgumentException.class, () -> review.setRating(-1));
         assertThrows(IllegalArgumentException.class, () -> review.setRating(6));
 
@@ -41,14 +61,11 @@ class ReviewTest {
 
     @Test
     void getText() {
-        Review review = new Review(3, "Good product");
         assertEquals("Good product", review.getText());
     }
 
     @Test
     void setText() {
-        Review review = new Review(3, "Good product");
-
         review.setText("Great product");
         assertEquals("Great product", review.getText());
 
