@@ -7,15 +7,14 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest {
     private User user;
 
     @BeforeEach
     public void setUp() {
-        user = new User("Jian", "Yang", "Jian@Yang.ca", "pwd");
+        user = new User("Jian_Yang");
     }
 
     @AfterEach
@@ -30,31 +29,12 @@ public class UserTest {
     }
 
     @Test
-    void firstName_get_set() {
-        assertEquals("Jian", user.getFirstName());
-        user.setFirstName("Eric");
-        assertEquals("Eric", user.getFirstName());
-    }
+    void username_get_set() {
+        assertEquals("Jian_Yang", user.getUsername());
+        user.setUsername("Eric_Bachman");
+        assertEquals("Eric_Bachman", user.getUsername());
 
-    @Test
-    void lastName_get_set() {
-        assertEquals("Yang", user.getLastName());
-        user.setLastName("Yan");
-        assertEquals("Yan", user.getLastName());
-    }
-
-    @Test
-    void email_get_set() {
-        assertEquals("Jian@Yang.ca", user.getEmail());
-        user.setEmail("Eric@Bachman.ca");
-        assertEquals("Eric@Bachman.ca", user.getEmail());
-    }
-
-    @Test
-    void password_get_set() {
-        assertEquals("pwd", user.getPassword());
-        user.setPassword("pwd2");
-        assertEquals("pwd2", user.getPassword());
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername(null));
     }
 
     @Test
@@ -67,6 +47,8 @@ public class UserTest {
         
         user.setReviews(reviews);
         assertEquals(1, user.getReviews().size());
+
+        assertThrows(IllegalArgumentException.class, () -> user.setReviews(null));
     }
 
     @Test
@@ -83,31 +65,37 @@ public class UserTest {
         
         user.removeReview(review); // remove a review
         assertEquals(0, user.getReviews().size());
-        assertNull(review.getAuthor());
+
+        assertThrows(IllegalArgumentException.class, () -> user.addReview(null));
+        assertThrows(IllegalArgumentException.class, () -> user.removeReview(null));
     }
     
     @Test
     void followers_get_set() {
         assertEquals(0, user.getFollowers().size());
         
-        User user2 = new User("Eric", "Bachman", "Eric@Bachman.ca", "pwd2");
+        User user2 = new User("Eric_Bachman");
         Set<User> followers = new HashSet<>();
         followers.add(user2);
 
         user.setFollowers(followers);
         assertEquals(1, user.getFollowers().size());
+
+        assertThrows(IllegalArgumentException.class, () -> user.setFollowers(null));
     }
 
     @Test
     void following_get_set() {
         assertEquals(0, user.getFollowing().size());
 
-        User user2 = new User("Eric", "Bachman", "Eric@Bachman.ca", "pwd2");
+        User user2 = new User("Eric_Bachman");
         Set<User> following = new HashSet<>();
         following.add(user2);
 
         user.setFollowing(following);
         assertEquals(1, user.getFollowing().size());
+
+        assertThrows(IllegalArgumentException.class, () -> user.setFollowing(null));
     }
 
     @Test
@@ -115,8 +103,8 @@ public class UserTest {
         assertEquals(0, user.getFollowing().size());
         assertEquals(0, user.getFollowers().size());
 
-        User user2 = new User("Eric", "Bachman", "Eric@Bachman.ca", "pwd2");
-        User user3 = new User("Russ", "Hanneman", "Russ@Hanneman.ca", "pwd2");
+        User user2 = new User("Eric_Bachman");
+        User user3 = new User("Russ_Hanneman");
 
         user.follow(user2); // Jian follows Eric
         assertEquals(1, user.getFollowing().size());
@@ -147,5 +135,13 @@ public class UserTest {
         assertEquals(0, user2.getFollowers().size());
         assertEquals(0, user3.getFollowing().size());
         assertEquals(0, user3.getFollowers().size());
+
+        assertThrows(IllegalArgumentException.class, () -> user.follow(null));
+        assertThrows(IllegalArgumentException.class, () -> user.unfollow(null));
+        assertThrows(IllegalArgumentException.class, () -> user.removeFollower(null));
+
+        assertThrows(IllegalArgumentException.class, () -> user.follow(user));
+        assertThrows(IllegalArgumentException.class, () -> user.unfollow(user));
+        assertThrows(IllegalArgumentException.class, () -> user.removeFollower(user));
     }
 }

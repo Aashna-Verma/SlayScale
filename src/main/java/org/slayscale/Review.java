@@ -13,8 +13,7 @@ public class Review {
     // TODO: put Product class field here for 'product'
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
-    @JsonIgnore
+    @JsonIgnore // avoid infinite recursion
     private User author;
 
     private int rating; // 0 - 5 stars
@@ -40,6 +39,9 @@ public class Review {
     }
 
     public void setAuthor(User author) {
+        if (author == null) {
+            throw new IllegalArgumentException("Author cannot be null.");
+        }
         this.author = author;
     }
 

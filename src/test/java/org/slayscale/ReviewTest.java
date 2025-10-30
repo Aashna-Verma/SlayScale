@@ -38,9 +38,11 @@ class ReviewTest {
 
     @Test
     void setAuthor() {
-        User user = new User("Jian", "Yang", "Jian@Yang.ca", "pwd");
+        User user = new User("Jian_Yang");
         review.setAuthor(user);
-        assertEquals("Jian", review.getAuthor().getFirstName());
+        assertEquals("Jian_Yang", review.getAuthor().getUsername());
+
+        assertThrows(IllegalArgumentException.class, () -> review.setAuthor(null));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package org.slayscale;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -12,14 +11,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
-    private String lastName;
-    private String email;
+    @Column(unique = true, nullable = false)
+    private String username;
 
-    @JsonIgnore
-    private String password;
-
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Review> reviews;
 
     @ManyToMany(mappedBy = "following")
@@ -33,13 +28,10 @@ public class User {
     )
     private Set<User> following;
 
-    public User() {}
+    protected User() {}
 
-    public User(String firstName, String lastName, String email, String password) {
-        setFirstName(firstName);
-        setLastName(lastName);
-        setEmail(email);
-        setPassword(password);
+    public User(String username) {
+        setUsername(username);
         setReviews(new HashSet<>());
         setFollowers(new HashSet<>());
         setFollowing(new HashSet<>());
@@ -53,36 +45,13 @@ public class User {
         this.id = id;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUsername(String username) {
+        if (username == null) throw new IllegalArgumentException("username cannot be null.");
+        this.username = username;
     }
 
     public Set<Review> getReviews() {
@@ -90,17 +59,19 @@ public class User {
     }
 
     public void setReviews(Set<Review> reviews) {
+        if (reviews == null) throw new IllegalArgumentException("reviews cannot be null.");
         this.reviews = reviews;
     }
 
-    public void addReview(Review review){
+    public void addReview(Review review) {
+        if (review == null) throw new IllegalArgumentException("review to add cannot be null.");
         this.reviews.add(review);
         review.setAuthor(this);
     }
 
-    public void removeReview(Review review){
+    public void removeReview(Review review) {
+        if (review == null) throw new IllegalArgumentException("review to remove cannot be null.");
         this.reviews.remove(review);
-        review.setAuthor(null);
     }
 
     public Set<User> getFollowers() {
@@ -108,6 +79,7 @@ public class User {
     }
 
     public void setFollowers(Set<User> followers) {
+        if (followers == null) throw new IllegalArgumentException("Followers cannot be null.");
         this.followers = followers;
     }
 
@@ -116,25 +88,29 @@ public class User {
     }
 
     public void setFollowing(Set<User> following) {
+        if (following == null) throw new IllegalArgumentException("following cannot be null.");
         this.following = following;
     }
 
     public void follow(User user) {
-        if (user == null || user.equals(this)) return;
+        if (user == null) throw new IllegalArgumentException("User cannot be null.");
+        if (user.equals(this)) throw new IllegalArgumentException("User cannot follow themselves");
         if (this.following.add(user)) {
             user.followers.add(this);
         }
     }
 
     public void unfollow(User user) {
-        if (user == null || user.equals(this)) return;
+        if (user == null) throw new IllegalArgumentException("User cannot be null.");
+        if (user.equals(this)) throw new IllegalArgumentException("User cannot unfollow themselves");
         if (this.following.remove(user)) {
             user.followers.remove(this);
         }
     }
 
     public void removeFollower(User user) {
-        if (user == null || user.equals(this)) return;
+        if (user == null) throw new IllegalArgumentException("User cannot be null.");
+        if (user.equals(this)) throw new IllegalArgumentException("User cannot remove themselves as follower");
         if (this.followers.remove(user)) {
             user.following.remove(this);
         }
