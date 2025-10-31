@@ -1,23 +1,27 @@
 package org.slayscale;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 @Entity
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     // TODO: put Product class field here for 'product'
-    // TODO: put User class field here for 'author'
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore // avoid infinite recursion
+    private User author;
+
     private int rating; // 0 - 5 stars
     private String text;
 
     protected Review() {}
 
-    public Review(int rating, String text) {
+    public Review(User author, int rating, String text) {
+        setAuthor(author);
         setRating(rating);
         setText(text);
     }
@@ -28,6 +32,17 @@ public class Review {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        if (author == null) {
+            throw new IllegalArgumentException("Author cannot be null.");
+        }
+        this.author = author;
     }
 
     public int getRating() {
