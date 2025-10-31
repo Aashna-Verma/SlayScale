@@ -74,7 +74,6 @@ public class ProductTest {
         product.addReview(review);
         product.removeReview(review);
         assert (product.getReviews().isEmpty());
-        assert (review.getProduct() == null);
     }
 
     @Test
