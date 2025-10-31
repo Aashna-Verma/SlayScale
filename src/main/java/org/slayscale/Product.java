@@ -71,13 +71,13 @@ public class Product {
             throw new IllegalArgumentException("Review cannot be null.");
         }
         this.reviews.add(review);
-        review.setProduct(this);
+        // review.setProduct(this);  <- prod controller should do this
     }
 
     public void removeReview(Review review) {
         if (review == null) throw new IllegalArgumentException("Review cannot be null.");
         this.reviews.remove(review);
-        review.setProduct(null);
+        // review.setProduct(null); <- prod controller should do this too
     }
 
     @Override
