@@ -70,8 +70,8 @@ public class UserTest {
     @Test
     void reviewsGetSet() {
         assertEquals(0, user.getReviews().size());
-        
-        Review review = new Review(user, 2, "description");
+        Product product = new Product();
+        Review review = new Review(user, 2, "description",product);
         Set<Review> reviews = new HashSet<>();
         reviews.add(review);
         
@@ -84,8 +84,8 @@ public class UserTest {
     @Test
     void reviewAddRemove() {
         assertEquals(0, user.getReviews().size());
-
-        Review review = new Review(user, 2, "description"); // add a review
+        Product product = new Product();
+        Review review = new Review(user, 2, "description",product); // add a review
         user.addReview(review);
         assertEquals(1, user.getReviews().size());
         assertEquals(user, review.getAuthor());

@@ -13,7 +13,6 @@ class ReviewTest {
     @BeforeEach
     public void setUp() {
         user = new User("Jian_Yang");
-        review = new Review(user, 3, "Good product");
     }
 
     @Test
