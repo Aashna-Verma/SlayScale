@@ -51,6 +51,11 @@ public class User {
 
     public void setUsername(String username) {
         if (username == null) throw new IllegalArgumentException("username cannot be null.");
+
+        // Regex: no spaces, no consecutive - or _, cannot start/end with them, 3–40 chars long
+        String regex = "^(?!.*[-_]{2,})(?=^[^-_].*[^-_]$)[A-Za-z0-9_-]{3,40}$";
+        if (!username.matches(regex)) throw new IllegalArgumentException("Invalid username format.");
+
         this.username = username;
     }
 

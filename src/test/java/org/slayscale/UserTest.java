@@ -30,6 +30,41 @@ public class UserTest {
         assertEquals("Eric_Bachman", user.getUsername());
 
         assertThrows(IllegalArgumentException.class, () -> user.setUsername(null));
+
+        // Too short (empty string)
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername(""));
+
+        // Too short (less than 3 characters)
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("R"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Di"));
+
+        // Too long (over 40 characters)
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("AlwaysBlueAlwaysBlueAlwaysBlueAlwaysBlueAlwaysBlue"));
+
+        // Starts with a hyphen or underscore
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("-RichardHendricks"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("_Dinesh"));
+
+        // Ends with a hyphen or underscore
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Gilfoyle-"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("EricBachman_"));
+
+        // Contains spaces or tabs
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Jared Dunn"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Hooli\tCorp"));
+
+        // Contains consecutive hyphens or underscores
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Pied--Piper"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Hooli__XYZ"));
+
+        // Contains invalid special characters
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Big.Head"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("Richard@Piper"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("PiedPiper!"));
+
+        // Leading or trailing spaces
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername(" Gilfoyle"));
+        assertThrows(IllegalArgumentException.class, () -> user.setUsername("EricBachman "));
     }
 
     @Test
