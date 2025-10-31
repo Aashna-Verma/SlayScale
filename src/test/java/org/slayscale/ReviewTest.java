@@ -9,10 +9,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReviewTest {
     private Review review;
     private User user;
+    private Product product;
 
     @BeforeEach
     public void setUp() {
         user = new User("Jian_Yang");
+        product = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
+        review = new Review(user, 3, "Good product",product);
     }
 
     @Test
