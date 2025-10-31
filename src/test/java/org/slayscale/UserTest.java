@@ -17,19 +17,14 @@ public class UserTest {
         user = new User("Jian_Yang");
     }
 
-    @AfterEach
-    public void tearDown() {
-        user = null;
-    }
-
     @Test
-    void id_get_set() {
+    void idGetSet() {
         user.setId(1L);
         assertEquals(1L, user.getId());
     }
 
     @Test
-    void username_get_set() {
+    void usernameGetSet() {
         assertEquals("Jian_Yang", user.getUsername());
         user.setUsername("Eric_Bachman");
         assertEquals("Eric_Bachman", user.getUsername());
@@ -38,10 +33,10 @@ public class UserTest {
     }
 
     @Test
-    void reviews_get_set() {
+    void reviewsGetSet() {
         assertEquals(0, user.getReviews().size());
         
-        Review review = new Review(2, "description");
+        Review review = new Review(user, 2, "description");
         Set<Review> reviews = new HashSet<>();
         reviews.add(review);
         
@@ -52,11 +47,11 @@ public class UserTest {
     }
 
     @Test
-    void review_add_delete() {
+    void reviewAddRemove() {
         assertEquals(0, user.getReviews().size());
-        Review review = new Review(2, "description");
 
-        user.addReview(review); // add a review
+        Review review = new Review(user, 2, "description"); // add a review
+        user.addReview(review);
         assertEquals(1, user.getReviews().size());
         assertEquals(user, review.getAuthor());
 
@@ -71,7 +66,7 @@ public class UserTest {
     }
     
     @Test
-    void followers_get_set() {
+    void followersGetSet() {
         assertEquals(0, user.getFollowers().size());
         
         User user2 = new User("Eric_Bachman");
@@ -85,7 +80,7 @@ public class UserTest {
     }
 
     @Test
-    void following_get_set() {
+    void followingGetSet() {
         assertEquals(0, user.getFollowing().size());
 
         User user2 = new User("Eric_Bachman");
@@ -99,7 +94,7 @@ public class UserTest {
     }
 
     @Test
-    void follow_unfollow_removeFollower() {
+    void followUnfollowRemoveFollower() {
         assertEquals(0, user.getFollowing().size());
         assertEquals(0, user.getFollowers().size());
 

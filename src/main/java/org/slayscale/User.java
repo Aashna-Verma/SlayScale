@@ -66,7 +66,6 @@ public class User {
     public void addReview(Review review) {
         if (review == null) throw new IllegalArgumentException("review to add cannot be null.");
         this.reviews.add(review);
-        review.setAuthor(this);
     }
 
     public void removeReview(Review review) {

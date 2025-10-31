@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 
 @Entity
 public class Review {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +20,8 @@ public class Review {
 
     protected Review() {}
 
-    public Review(int rating, String text) {
+    public Review(User author, int rating, String text) {
+        setAuthor(author);
         setRating(rating);
         setText(text);
     }

@@ -8,15 +8,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReviewTest {
     private Review review;
+    private User user;
 
     @BeforeEach
     public void setUp() {
-        review = new Review(3, "Good product");
-    }
-
-    @AfterEach
-    public void tearDown() {
-        review = null;
+        user = new User("Jian_Yang");
+        review = new Review(user, 3, "Good product");
     }
 
     @Test
@@ -33,14 +30,14 @@ class ReviewTest {
 
     @Test
     void getAuthor() {
-        assertNull(review.getAuthor());
+        assertEquals(user, review.getAuthor());
     }
 
     @Test
     void setAuthor() {
-        User user = new User("Jian_Yang");
-        review.setAuthor(user);
-        assertEquals("Jian_Yang", review.getAuthor().getUsername());
+        User user2 = new User("Eric_Bachman");
+        review.setAuthor(user2);
+        assertEquals(user2, review.getAuthor());
 
         assertThrows(IllegalArgumentException.class, () -> review.setAuthor(null));
     }
