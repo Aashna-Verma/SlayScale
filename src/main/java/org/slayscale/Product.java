@@ -77,9 +77,4 @@ public class Product {
         this.reviews.remove(review);
     }
 
-    @Override
-    public String toString() {
-        return String.format("Product[id=%d, category=%s, url='%s', reviews=%s]", id, category, url, reviews);
-    }
-
 }

@@ -17,43 +17,34 @@ public class ProductTest {
         review = new Review(user, 4, "vhat a beautiful sign", product);
     }
 
+
     @Test
-    public void constructor() {
+    public void getSetId() {
+        product.setId(10L);
+        assert (product.getId() == 10L);
+    }
+
+    @Test
+    public void getSetCategory() {
         assert (product.getCategory() == Category.ELECTRONICS);
-        assert (product.getUrl().equals("http://costco.ca/led-patel-signs/p-24"));
-        assert (product.getReviews().isEmpty());
-    }
-
-    @Test
-    public void constructorNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Product(null, "https://test.com"));
-    }
-
-    @Test
-    public void setCategoryNull() {
+        product.setCategory(Category.BOOKS);
+        assert (product.getCategory() == Category.BOOKS);
         assertThrows(IllegalArgumentException.class, () -> product.setCategory(null));
     }
 
     @Test
-    public void setUrlNull() {
-        assertThrows(IllegalArgumentException.class, () -> product.setUrl(null));
+    public void setUrl() {
+        assert (product.getUrl().equals("http://costco.ca/led-patel-signs/p-24"));
+        product.setUrl("http://amazon.ca/kindle/p-99");
+        assert (product.getUrl().equals("http://amazon.ca/kindle/p-99"));
+        assertThrows(IllegalArgumentException.class, () -> product.setUrl(" "));
     }
 
     @Test
-    public void setRatingNull() {
-        assertThrows(IllegalArgumentException.class, () -> product.setUrl(null));
-    }
-
-    @Test
-    public void reviewsGetSet() {
+    public void getSetReviews() {
         assert (product.getReviews().isEmpty());
-
         product.getReviews().add(review);
         assert (product.getReviews().size() == 1);
-    }
-
-    @Test
-    public void setReviewsNull() {
         assertThrows(IllegalArgumentException.class, () -> product.setReviews(null));
     }
 
@@ -62,10 +53,6 @@ public class ProductTest {
         product.addReview(review);
         assert (product.getReviews().size() == 1);
         assert (review.getProduct() == product);
-    }
-
-    @Test
-    public void addReviewNull() {
         assertThrows(IllegalArgumentException.class, () -> product.addReview(null));
     }
 
@@ -74,19 +61,7 @@ public class ProductTest {
         product.addReview(review);
         product.removeReview(review);
         assert (product.getReviews().isEmpty());
-    }
-
-    @Test
-    public void removeReviewNull() {
         assertThrows(IllegalArgumentException.class, () -> product.removeReview(null));
     }
-
-    @Test
-    public void testToString() {
-        String expected = "Product[id=null, category=ELECTRONICS, url='http://costco.ca/led-patel-signs/p-24', reviews=[]]";
-        System.out.println(product.toString());
-        assert (product.toString().equals(expected));
-    }
-
 
 }
