@@ -9,7 +9,9 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: put Product class field here for 'product'
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore // avoid infinite recursion
+    private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore // avoid infinite recursion
@@ -20,10 +22,11 @@ public class Review {
 
     protected Review() {}
 
-    public Review(User author, int rating, String text) {
+    public Review(User author, int rating, String text, Product product) {
         setAuthor(author);
         setRating(rating);
         setText(text);
+        setProduct(product);
     }
 
     public Long getId() {
@@ -65,5 +68,16 @@ public class Review {
             throw new IllegalArgumentException("Text cannot be null.");
         }
         this.text = text;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null.");
+        }
+        this.product = product;
     }
 }
