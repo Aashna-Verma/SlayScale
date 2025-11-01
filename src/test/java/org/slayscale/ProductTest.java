@@ -18,34 +18,34 @@ public class ProductTest {
     }
 
     @Test
-    public void testConstructor() {
+    public void constructor() {
         assert (product.getCategory() == Category.ELECTRONICS);
         assert (product.getUrl().equals("http://costco.ca/led-patel-signs/p-24"));
         assert (product.getReviews().isEmpty());
     }
 
     @Test
-    public void testConstructorNull() {
+    public void constructorNull() {
         assertThrows(IllegalArgumentException.class, () -> new Product(null, "https://test.com"));
     }
 
     @Test
-    public void testSetCategoryNull() {
+    public void setCategoryNull() {
         assertThrows(IllegalArgumentException.class, () -> product.setCategory(null));
     }
 
     @Test
-    public void testSetUrlNull() {
+    public void setUrlNull() {
         assertThrows(IllegalArgumentException.class, () -> product.setUrl(null));
     }
 
     @Test
-    public void testSetRatingNull() {
+    public void setRatingNull() {
         assertThrows(IllegalArgumentException.class, () -> product.setUrl(null));
     }
 
     @Test
-    public void testReviewsGetSet() {
+    public void reviewsGetSet() {
         assert (product.getReviews().isEmpty());
 
         product.getReviews().add(review);
@@ -53,31 +53,31 @@ public class ProductTest {
     }
 
     @Test
-    public void testSetReviewsNull() {
+    public void setReviewsNull() {
         assertThrows(IllegalArgumentException.class, () -> product.setReviews(null));
     }
 
     @Test
-    public void testAddReview() {
+    public void addReview() {
         product.addReview(review);
         assert (product.getReviews().size() == 1);
         assert (review.getProduct() == product);
     }
 
     @Test
-    public void testAddReviewNull() {
+    public void addReviewNull() {
         assertThrows(IllegalArgumentException.class, () -> product.addReview(null));
     }
 
     @Test
-    public void testRemoveReview() {
+    public void removeReview() {
         product.addReview(review);
         product.removeReview(review);
         assert (product.getReviews().isEmpty());
     }
 
     @Test
-    public void testRemoveReviewNull() {
+    public void removeReviewNull() {
         assertThrows(IllegalArgumentException.class, () -> product.removeReview(null));
     }
 

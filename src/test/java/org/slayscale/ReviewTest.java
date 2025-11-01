@@ -75,4 +75,18 @@ class ReviewTest {
 
         assertThrows(IllegalArgumentException.class, () -> review.setText(null));
     }
+
+    @Test
+    void getProduct() {
+        assertEquals(product, review.getProduct());
+    }
+
+    @Test
+    void setProduct() {
+        Product product2 = new Product(Category.BOOKS, "http://amazon.com/some-book/p-45");
+        review.setProduct(product2);
+        assertEquals(product2, review.getProduct());
+
+        assertThrows(IllegalArgumentException.class, () -> review.setProduct(null));
+    }
 }

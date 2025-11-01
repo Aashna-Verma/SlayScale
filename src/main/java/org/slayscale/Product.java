@@ -12,7 +12,6 @@ public class Product {
     private Long id;
 
     private Enum<Category> category;
-
     private String url;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -24,7 +23,7 @@ public class Product {
     public Product(Enum<Category> category, String url) {
         setCategory(category);
         setUrl(url);
-        setReviews(new HashSet<>());
+        this.reviews = new HashSet<>();
     }
 
     public Long getId() {
@@ -71,13 +70,11 @@ public class Product {
             throw new IllegalArgumentException("Review cannot be null.");
         }
         this.reviews.add(review);
-        // review.setProduct(this);  <- prod controller should do this
     }
 
     public void removeReview(Review review) {
         if (review == null) throw new IllegalArgumentException("Review cannot be null.");
         this.reviews.remove(review);
-        // review.setProduct(null); <- prod controller should do this too
     }
 
     @Override

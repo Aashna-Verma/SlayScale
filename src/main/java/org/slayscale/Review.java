@@ -75,6 +75,9 @@ public class Review {
     }
 
     public void setProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null.");
+        }
         this.product = product;
     }
 }

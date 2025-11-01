@@ -18,13 +18,13 @@ public class UserTest {
     }
 
     @Test
-    void idGetSet() {
+    void getSetId() {
         user.setId(1L);
         assertEquals(1L, user.getId());
     }
 
     @Test
-    void usernameGetSet() {
+    void getSetUsername() {
         assertEquals("Jian_Yang", user.getUsername());
         user.setUsername("Eric_Bachman");
         assertEquals("Eric_Bachman", user.getUsername());
@@ -68,10 +68,10 @@ public class UserTest {
     }
 
     @Test
-    void reviewsGetSet() {
+    void getSetReviews() {
         assertEquals(0, user.getReviews().size());
         Product product = new Product();
-        Review review = new Review(user, 2, "description",product);
+        Review review = new Review(user, 2, "description", product);
         Set<Review> reviews = new HashSet<>();
         reviews.add(review);
         
@@ -82,10 +82,10 @@ public class UserTest {
     }
 
     @Test
-    void reviewAddRemove() {
+    void addRemoveReview() {
         assertEquals(0, user.getReviews().size());
         Product product = new Product();
-        Review review = new Review(user, 2, "description",product); // add a review
+        Review review = new Review(user, 2, "description", product); // add a review
         user.addReview(review);
         assertEquals(1, user.getReviews().size());
         assertEquals(user, review.getAuthor());
@@ -101,7 +101,7 @@ public class UserTest {
     }
     
     @Test
-    void followersGetSet() {
+    void getSetFollowers() {
         assertEquals(0, user.getFollowers().size());
         
         User user2 = new User("Eric_Bachman");
@@ -115,7 +115,7 @@ public class UserTest {
     }
 
     @Test
-    void followingGetSet() {
+    void getSetFollowing() {
         assertEquals(0, user.getFollowing().size());
 
         User user2 = new User("Eric_Bachman");
