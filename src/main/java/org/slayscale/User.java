@@ -1,11 +1,11 @@
 package org.slayscale;
 
 import jakarta.persistence.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "app_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +18,7 @@ public class User {
     private Set<Review> reviews;
 
     @ManyToMany(mappedBy = "following")
+
     private Set<User> followers;
 
     @ManyToMany
