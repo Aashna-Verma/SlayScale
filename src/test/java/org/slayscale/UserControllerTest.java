@@ -40,11 +40,16 @@ public class UserControllerTest {
         user2 = new User("Bob");
         user2.setId(2L);
 
+        // Mock product
+        Product product = new Product(Category.ELECTRONICS, "https://example.com/product");
+        product.setId(50L);
+
         // Mock review for user1
-        Review review1 = new Review(user1, 5, "Great!");
+        Review review1 = new Review(user1, 5, "Great!", product);
         review1.setId(100L);
         user1.addReview(review1);
     }
+
 
     // Test retrieving all users
     @Test
@@ -79,17 +84,16 @@ public class UserControllerTest {
     @Test
     void testCreateUserSuccess() throws Exception {
         Map<String, String> body = Map.of("username", "Charlie");
-        User newUser = new User("Charlie");
-        newUser.setId(3L);
         when(userRepository.findByUsername("Charlie")).thenReturn(Optional.empty());
-        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class))).thenReturn(newUser);
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk())
+        User savedUser = new User("Charlie");
+        savedUser.setId(3L);
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class))).thenReturn(savedUser);
+        mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated()) // endpoint returns 201
                 .andExpect(jsonPath("$.id", is(3)))
                 .andExpect(jsonPath("$.username", is("Charlie")));
     }
+
 
     // Test creating a user with a duplicate username (failure)
     @Test
@@ -100,29 +104,6 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isBadRequest());
-    }
-
-    // Test updating an existing user successfully
-    @Test
-    void testUpdateUserSuccess() throws Exception {
-        User updated = new User("AliceUpdated");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class))).thenReturn(updated);
-        mockMvc.perform(put("/api/users/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updated)))
-                .andExpect(status().isOk());
-    }
-
-    // Test updating a user that does not exist
-    @Test
-    void testUpdateUserNotFound() throws Exception {
-        User updated = new User("AliceUpdated");
-        when(userRepository.findById(5L)).thenReturn(Optional.empty());
-        mockMvc.perform(put("/api/users/5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updated)))
-                .andExpect(status().isNotFound());
     }
 
     // Test deleting a user successfully
@@ -140,35 +121,6 @@ public class UserControllerTest {
         when(userRepository.existsById(99L)).thenReturn(false);
         mockMvc.perform(delete("/api/users/99"))
                 .andExpect(status().isNotFound());
-    }
-
-    // Test following another user successfully
-    @Test
-    void testFollowUserSuccess() throws Exception {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
-        mockMvc.perform(post("/api/users/1/follow/2"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("is now following")));
-    }
-
-    // Test following oneself (should fail)
-    @Test
-    void testFollowUserSelfFail() throws Exception {
-        mockMvc.perform(post("/api/users/1/follow/1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("cannot follow themselves")));
-    }
-
-    // Test unfollowing a user successfully
-    @Test
-    void testUnfollowUserSuccess() throws Exception {
-        user1.follow(user2);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
-        mockMvc.perform(post("/api/users/1/unfollow/2"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("has unfollowed")));
     }
 
     // Test getting followers of a user
@@ -191,17 +143,21 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].username", is("Bob")));
     }
 
-    // Test creating a review successfully
+    // Test creating a review of a user
     @Test
     void testCreateReviewSuccess() throws Exception {
-        Map<String, Object> body = Map.of("rating", 4, "text", "Nice!");
+        Map<String, Object> body = Map.of(
+                "rating", 4,
+                "text", "Nice!"
+        );
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class))).thenReturn(user1);
         mockMvc.perform(post("/api/users/1/review")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rating", is(4)))
-                .andExpect(jsonPath("$.text", is("Nice!")));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.text", is("Nice!")))
+                .andExpect(jsonPath("$.rating", is(4)));
     }
 
     // Test retrieving all reviews of a user

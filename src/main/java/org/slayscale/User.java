@@ -18,7 +18,6 @@ public class User {
     private Set<Review> reviews;
 
     @ManyToMany(mappedBy = "following")
-
     private Set<User> followers;
 
     @ManyToMany
