@@ -11,7 +11,7 @@ Each product is identified by its online listing link and categorized by type. U
 - Degree of separation between users in the follow network
 
 ## Current State
-- Able to create a new user and add a review
+- Able to create a new user and add a review by making HTTP requests to the backend 
 - Implemented `User`, `Product`, and `Review` JPA entities, along with `UserController` and `ProductController`, made for RESTful API endpoints 
 - CRUD operations for products and reviews, including creating a user and adding reviews for users
 - Validation and Error Handling: Unit tests for entities and controllers, input validation for URLs, null checks for entities and exception handling
