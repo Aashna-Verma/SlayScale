@@ -2,10 +2,14 @@ package org.slayscale;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,129 +26,98 @@ class ProductControllerAssertTests {
         return new ProductController(repo);
     }
 
-    @Test
-    void create_and_get_by_id() {
-        var c = controller();
-        var created = c.create(new CreateProductDTO("https://p1.com", "ELECTRONICS"));
-        assertNotNull(created.getId());
+    private Product createProduct(ProductController c, String url, String category) {
+        ResponseEntity<Product> res = c.createProduct(Map.of("url", url, "category", category));
+        assertEquals(HttpStatus.CREATED, res.getStatusCode());
+        assertNotNull(res.getBody());
+        return res.getBody();
+    }
 
-        var fetched = c.get(created.getId());
-        assertNotNull(fetched);
+    // ----- TESTS -----
+
+    @Test
+    void createProduct_andGetProductById() {
+        var c = controller();
+        var created = createProduct(c, "https://p1.com", "ELECTRONICS");
+
+        var fetched = c.getProduct(created.getId());
         assertEquals("https://p1.com", fetched.getUrl());
         assertEquals(Category.ELECTRONICS, fetched.getCategory());
     }
 
     @Test
-    void list_all_and_filter_by_category() {
+    void listProducts_returnsAllAndFiltersByCategory() {
         var c = controller();
-        c.create(new CreateProductDTO("https://a.com", "BOOKS"));
-        c.create(new CreateProductDTO("https://b.com", "ELECTRONICS"));
+        createProduct(c, "https://a.com", "BOOKS");
+        createProduct(c, "https://b.com", "ELECTRONICS");
 
-        assertEquals(2, c.list(null).size());                // all
-        assertEquals(1, c.list("books").size());             // filter (case-insensitive)
-        assertEquals(0, c.list("toys").size());              // invalid category -> empty list
+        assertEquals(2, c.listProducts(null).size());
+        assertEquals(1, c.listProducts("books").size());
+        assertEquals(0, c.listProducts("toys").size());
     }
 
     @Test
-    void update_changes_url_only() {
+    void deleteProduct_removesItem() {
         var c = controller();
-        var p = c.create(new CreateProductDTO("https://old.com", "ELECTRONICS"));
+        var p1 = createProduct(c, "https://x.com", "BOOKS");
+        createProduct(c, "https://y.com", "ELECTRONICS");
 
-        var updated = c.update(p.getId(), new UpdateProductDTO("https://new.com", null));
-        assertEquals("https://new.com", updated.getUrl());
-        assertEquals(Category.ELECTRONICS, updated.getCategory()); // unchanged
+        c.deleteProduct(p1.getId());
+        assertEquals(1, c.listProducts(null).size());
+        assertThrows(ResponseStatusException.class, () -> c.getProduct(p1.getId()));
     }
 
     @Test
-    void delete_removes_item() {
+    void getProduct_missingProduct_throws404() {
         var c = controller();
-        var p1 = c.create(new CreateProductDTO("https://x.com", "BOOKS"));
-        c.create(new CreateProductDTO("https://y.com", "ELECTRONICS"));
-
-        c.delete(p1.getId());
-        assertEquals(1, c.list(null).size());
-        assertThrows(ResponseStatusException.class, () -> c.get(p1.getId()));  // return 404
+        assertThrows(ResponseStatusException.class, () -> c.getProduct(9999L));
     }
 
     @Test
-    void get_missing_throws_404() {
-        ProductController c = controller();
-        assertThrows(ResponseStatusException.class, () -> c.get(9999L)); // 404
+    void createProduct_invalidCategory_returns400() {
+        var c = controller();
+        var res = c.createProduct(Map.of("url", "https://x.com", "category", "GARDEN"));
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 
     @Test
-    void create_invalid_category_throws_400() {
-        ProductController c = controller();
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.create(new CreateProductDTO("https://x.com", "GRADEN")));
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+    void createProduct_blankUrl_returns400() {
+        var c = controller();
+        var res = c.createProduct(Map.of("url", "   ", "category", "ELECTRONICS"));
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 
     @Test
-    void create_blank_url_throws_400() {
-        ProductController c = controller();
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.create(new CreateProductDTO("   ", "ELECTRONICS")));
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+    void createProduct_blankCategory_returns400() {
+        var c = controller();
+        var res = c.createProduct(Map.of("url", "https://x.com", "category", "   "));
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 
     @Test
-    void create_blank_category_throws_400() {
-        ProductController c = controller();
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.create(new CreateProductDTO("https://x.com", "   ")));
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
-    }
-
-    @Test
-    void update_invalid_category_throws_400() {
-        ProductController c = controller();
-        Product p = c.create(new CreateProductDTO("https://x.com", "BOOKS"));
-         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.update(p.getId(), new UpdateProductDTO(null, "GARDEN")));
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
-    }
-
-    @Test
-    void update_blank_url_throws_400() {
-        ProductController c = controller();
-        Product p = c.create(new CreateProductDTO("https://x.com", "BOOKS"));
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.update(p.getId(), new UpdateProductDTO("   ", null)));
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
-    }
-
-    @Test
-    void update_no_fields_throws_400() {
-        ProductController c = controller();
-        Product p = c.create(new CreateProductDTO("https://x.com", "BOOKS"));
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.update(p.getId(), new UpdateProductDTO(null, null)));
-        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
-    }
-
-    @Test
-    void delete_missing_id_throws_404() {
-        ProductController c = controller();
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.delete(99999L));
+    void deleteProduct_missingId_throws404() {
+        var c = controller();
+        var ex = assertThrows(ResponseStatusException.class,
+                () -> c.deleteProduct(99999L));
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 
     @Test
-    void reviews_missing_product_throws_404() {
-        ProductController c = controller();
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> c.reviews(99999L));
-        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    void getProductReviews_missingProduct_returns404() {
+        var c = controller();
+        var res = c.getProductReviews(99999L);
+        assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
     }
 
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     @Test
-    void reviews_existing_product_returns_empty_list_when_no_reviews() {
-        ProductController c = controller();
-        Product p = c.create(new CreateProductDTO("https://norev.com", "BOOKS"));
-        assertTrue(c.reviews(p.getId()).isEmpty());
-    }
+    void getProductReviews_existingProduct_returnsEmptySetWhenNoReviews() {
+        var c = controller();
+        var p = createProduct(c, "https://norev.com", "BOOKS");
 
+        var res = c.getProductReviews(p.getId());
+        assertEquals(HttpStatus.OK, res.getStatusCode());
+        assertNotNull(res.getBody());
+        assertTrue(res.getBody().isEmpty());
+    }
 }

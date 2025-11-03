@@ -1,100 +1,71 @@
 package org.slayscale;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
-record CreateProductDTO(String url, String category) {}
-record UpdateProductDTO(String url, String category) {}
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-
-    private final ProductRepository repo;
-
+    private final ProductRepository productRepository;
     public ProductController(ProductRepository repo) {
-        this.repo = repo;
+        this.productRepository = repo;
     }
+
     @GetMapping("/{id}/reviews")
-    @Transactional(readOnly = true)
-    public List<Review> reviews(@PathVariable Long id) {
-        Product p = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-        return new java.util.ArrayList<>(p.getReviews()); // Set -> List
+    public ResponseEntity<Set<Review>> getProductReviews(@PathVariable Long id) {
+        return productRepository.findById(id)
+                .map(product -> ResponseEntity.ok(product.getReviews()))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // CREATE
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product create(@RequestBody CreateProductDTO body) {
-        if (body == null || body.url() == null || body.url().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "url is required");
+    public ResponseEntity<Product> createProduct(@RequestBody Map<String,String> body) {
+        String url = body.get("url");
+        String category = body.get("category");
+        if (url == null || url.isBlank() || category == null || category.isBlank()) {
+            return ResponseEntity.badRequest().build();
         }
-        if (body.category() == null || body.category().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "category is required");
-        }
-        final Category cat;
-        try { cat = Category.valueOf(body.category().toUpperCase()); }
-        catch (IllegalArgumentException e) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid category"); }
-        return repo.save(new Product(cat, body.url().trim()));
+        Category parsed;
+        try { parsed = Category.valueOf(category.toUpperCase()); }
+        catch (IllegalArgumentException e) { return ResponseEntity.badRequest().build(); }
+        Product saved = productRepository.save(new Product(parsed, url.trim()));
+        return ResponseEntity.status(201).body(saved);
     }
 
-
     @GetMapping
-    public List<Product> list(@RequestParam(required = false) String category) {
-        // If category provided:
+    public List<Product> listProducts(@RequestParam(required = false) String category) {
         if (category != null && !category.isBlank()) {
             try {
                 Category cat = Category.valueOf(category.trim().toUpperCase());
-                return repo.findByCategory(cat);
+                return productRepository.findByCategory(cat);
             } catch (IllegalArgumentException e) {
-                // Invalid category -> return all products
-                return repo.findAll();
+                return productRepository.findAll();
             }
         }
-        // Default: all products
-        return repo.findAll();
+        return productRepository.findAll();
     }
 
     // READ one
     @GetMapping("/{id}")
-    public Product get(@PathVariable Long id) {
-        return repo.findById(id)
+    public Product getProduct(@PathVariable Long id) {
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
     }
-
-    // UPDATE (partial/full)
-    @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody UpdateProductDTO body) {
-        if (body == null || (body.url() == null && body.category() == null)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No fields to update");
-        }
-        return repo.findById(id).map(p -> {
-            if (body.url() != null) {
-                if (body.url().isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "url cannot be blank");
-                p.setUrl(body.url().trim());
-            }
-            if (body.category() != null) {
-                try { p.setCategory(Category.valueOf(body.category().toUpperCase())); }
-                catch (IllegalArgumentException e) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid category"); }
-            }
-            return repo.save(p);
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-    }
-
 
     // DELETE
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        if (!repo.existsById(id)) {
+    public void deleteProduct(@PathVariable Long id) {
+        if (!productRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
         }
-        repo.deleteById(id);
+        productRepository.deleteById(id);
     }
 }
