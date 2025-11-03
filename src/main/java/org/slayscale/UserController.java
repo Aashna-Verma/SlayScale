@@ -111,7 +111,7 @@ public class UserController {
         response.put("rating", review.getRating());
         response.put("text", review.getText());
         response.put("productId", review.getProduct().getId());
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{userId}/reviews")
