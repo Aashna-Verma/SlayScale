@@ -33,10 +33,8 @@ class ProductControllerAssertTests {
         return res.getBody();
     }
 
-    // ----- TESTS -----
-
     @Test
-    void createProduct_andGetProductById() {
+    void createProductAndGetProductById() {
         var c = controller();
         var created = createProduct(c, "https://p1.com", "ELECTRONICS");
 
@@ -46,7 +44,7 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void listProducts_returnsAllAndFiltersByCategory() {
+    void listProductsReturnsAllAndFiltersByCategory() {
         var c = controller();
         createProduct(c, "https://a.com", "BOOKS");
         createProduct(c, "https://b.com", "ELECTRONICS");
@@ -57,7 +55,7 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void deleteProduct_removesItem() {
+    void deleteProductRemovesItem() {
         var c = controller();
         var p1 = createProduct(c, "https://x.com", "BOOKS");
         createProduct(c, "https://y.com", "ELECTRONICS");
@@ -68,34 +66,34 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void getProduct_missingProduct_throws404() {
+    void getProductMissingProduct() {
         var c = controller();
         assertThrows(ResponseStatusException.class, () -> c.getProduct(9999L));
     }
 
     @Test
-    void createProduct_invalidCategory_returns400() {
+    void createProductInvalidCategory() {
         var c = controller();
         var res = c.createProduct(Map.of("url", "https://x.com", "category", "GARDEN"));
         assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 
     @Test
-    void createProduct_blankUrl_returns400() {
+    void createProductBlankUrl() {
         var c = controller();
         var res = c.createProduct(Map.of("url", "   ", "category", "ELECTRONICS"));
         assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 
     @Test
-    void createProduct_blankCategory_returns400() {
+    void createProductBlankCategory() {
         var c = controller();
         var res = c.createProduct(Map.of("url", "https://x.com", "category", "   "));
         assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 
     @Test
-    void deleteProduct_missingId_throws404() {
+    void deleteProductMissingId() {
         var c = controller();
         var ex = assertThrows(ResponseStatusException.class,
                 () -> c.deleteProduct(99999L));
@@ -103,7 +101,7 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void getProductReviews_missingProduct_returns404() {
+    void getProductReviewsMissingProduct() {
         var c = controller();
         var res = c.getProductReviews(99999L);
         assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
@@ -111,7 +109,7 @@ class ProductControllerAssertTests {
 
     @Transactional
     @Test
-    void getProductReviews_existingProduct_returnsEmptySetWhenNoReviews() {
+    void getProductReviewsExistingProductReturnsEmptySetWhenNoReviews() {
         var c = controller();
         var p = createProduct(c, "https://norev.com", "BOOKS");
 

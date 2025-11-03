@@ -36,7 +36,7 @@ public class ProductController {
         try { parsed = Category.valueOf(category.toUpperCase()); }
         catch (IllegalArgumentException e) { return ResponseEntity.badRequest().build(); }
         Product saved = productRepository.save(new Product(parsed, url.trim()));
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping
