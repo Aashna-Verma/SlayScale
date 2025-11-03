@@ -19,14 +19,8 @@ import java.util.Set;
 @RequestMapping("/SlayScale")
 @SessionAttributes("currentUserId")
 public class SlayScaleViewController {
-
-    private final RestTemplate restTemplate = new RestTemplate();
     private final UserController userController;
     private final ProductController productController;
-
-    // Base URL of your backend API (adjust as needed)
-    @Value("${app.api.base-url:localhost:8080}")
-    private String baseUrl;
 
     public SlayScaleViewController(UserController userController, ProductController productController) {
         this.userController = userController;
@@ -35,14 +29,12 @@ public class SlayScaleViewController {
     @ModelAttribute("currentUserId")
     public Long currentUserId() { return null; }
 
-    // Render signup page
     @GetMapping("/signup")
     public String signupForm(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) model.addAttribute("error", error);
         return "signup";
     }
 
-    // Handle signup submission
     @PostMapping("/signup")
     public String performSignup(@RequestParam("username") String username, HttpSession session, RedirectAttributes redirectAttributes) {
         try {
@@ -62,7 +54,6 @@ public class SlayScaleViewController {
         }
     }
 
-    // ---------- ALL PRODUCTS ----------
     @GetMapping("/products")
     public String productsPage(@RequestParam(value = "error", required = false) String error,
                                @RequestParam(value = "success", required = false) String success,
@@ -78,7 +69,6 @@ public class SlayScaleViewController {
 
         return "products";
     }
-
 
     @PostMapping("/products")
     public String createProduct(@RequestParam("category") String category,
@@ -106,7 +96,6 @@ public class SlayScaleViewController {
         return "redirect:/SlayScale/products";
     }
 
-    // ---------- PRODUCT DETAIL + REVIEWS ----------
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,
                                 @SessionAttribute(value = "currentUserId", required = false)
@@ -117,7 +106,6 @@ public class SlayScaleViewController {
         Product product = productController.getProduct(id);
         model.addAttribute("product", product);
 
-        // product reviews
         ResponseEntity<Set<Review>> reviewsResp = productController.getProductReviews(id);
 
         Set<Review> reviews = reviewsResp != null && reviewsResp.getBody() != null ? reviewsResp.getBody() : Set.of();
@@ -159,5 +147,4 @@ public class SlayScaleViewController {
 
         return "redirect:/SlayScale/products/{id}";
     }
-
 }
