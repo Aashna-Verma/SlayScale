@@ -15,7 +15,7 @@ public class Product {
     private Category category;
     private String url;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Review> reviews;
 

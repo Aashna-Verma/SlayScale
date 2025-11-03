@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup</title>
+    <link rel="stylesheet" th:href="@{/global.css}" />
+</head>
+<body>
+<form th:action="@{/SlayScale/signup}" method="post">
+    <h1>Sign Up</h1>
+
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" placeholder="Enter a username" />
+
+    <div class="rules error" th:if="${error}">
+        <ul>
+            <li>No spaces</li>
+            <li>No consecutive hyphens <code>--</code> or underscores <code>__</code></li>
+            <li>Cannot start or end with a hyphen or underscore</li>
+            <li>Must be between 3–40 characters long</li>
+        </ul>
+    </div>
+
+    <button type="submit">Create Account</button>
+
+    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+</form>
+</body>
+</html>

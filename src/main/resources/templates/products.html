@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Products</title>
+    <link rel="stylesheet" th:href="@{/global.css}" />
+</head>
+<body>
+<h1>SlayScale</h1>
+
+<!-- Tabs -->
+<div class="tabs">
+    <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+</div>
+
+<!-- Product list -->
+<section>
+    <h2>All Products</h2>
+    <div th:if="${#lists.isEmpty(products)}" class="muted">No products yet.</div>
+
+    <div th:each="p : ${products}" class="card">
+        <a th:href="@{|/SlayScale/products/${p.id}|}" style="text-decoration:none; color:inherit;">
+            <div><b>ID:</b> <span th:text="${p.id}">1</span></div>
+            <div><b>Category:</b> <span th:text="${p.category}">ELECTRONICS</span></div>
+            <div><b>URL:</b> <a th:href="${p.url}" th:text="${p.url}">https://example</a></div>
+        </a>
+    </div>
+</section>
+
+<!-- Add product form -->
+<form class="add-product" th:action="@{/SlayScale/products}" method="post">
+    <h3>Add a Product</h3>
+
+    <!-- Alerts -->
+    <div th:if="${error}" class="msg error" th:text="${error}"></div>
+    <div th:if="${success}" class="msg success" th:text="${success}"></div>
+
+    <label for="url">Product URL</label>
+    <input id="url" name="url" type="url" placeholder="https://example.com/item" />
+
+    <label for="category">Category</label>
+    <select id="category" name="category" required>
+        <option value="">-- Select a category --</option>
+        <option th:each="cat : ${categories}"
+                th:value="${cat.name()}"
+                th:text="${cat.name()}">
+        </option>
+    </select>
+
+    <button type="submit">Add Product</button>
+    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+</form>
+</body>
+</html>
