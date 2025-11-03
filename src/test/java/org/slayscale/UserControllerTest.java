@@ -46,7 +46,7 @@ public class UserControllerTest {
         user2 = new User("Bob");
         user2.setId(2L);
 
-        //Mock product
+        // Mock products
         product1 = new Product(Category.ELECTRONICS, "https://example.com/product");
         product1.setId(50L);
 
@@ -55,8 +55,13 @@ public class UserControllerTest {
 
         // Mock review for user1
         review1 = new Review(user1, 5, "Great!", product1);
-        review1.setId(100L);
+        review1.setId(61L);
         user1.addReview(review1);
+        product1.addReview(review1);
+
+        // Stub repository calls
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
+        when(productRepository.findById(50L)).thenReturn(Optional.of(product1));
     }
     
     @Test
@@ -143,19 +148,19 @@ public class UserControllerTest {
 
     @Test
     void testCreateReviewSuccess() throws Exception {
-        // Prepare review request (we only need rating, text, and product for the controller)
-        Review reviewRequest = new Review();
-        reviewRequest.setRating(2);
-        reviewRequest.setText("Meh!");
-        reviewRequest.setProduct(product2); // product2 should have an ID set
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        mockMvc.perform(post("/api/users/1/review")
+        when(productRepository.findById(50L)).thenReturn(Optional.of(product1));
+        Map<String, Object> reviewBody = Map.of(
+                "rating", 2,
+                "text", "Meh!"
+        );
+        mockMvc.perform(post("/api/users/1/50/review")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(reviewRequest)))
+                        .content(new ObjectMapper().writeValueAsString(reviewBody)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.rating").value(2))
                 .andExpect(jsonPath("$.text").value("Meh!"))
-                .andExpect(jsonPath("$.productId").value(product2.getId()));
+                .andExpect(jsonPath("$.productId").value(50));
     }
 
     @Test
@@ -168,18 +173,16 @@ public class UserControllerTest {
 
     @Test
     void testDeleteReviewSuccess() throws Exception {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        mockMvc.perform(delete("/api/users/1/review/100"))
+        mockMvc.perform(delete("/api/users/1/review/61"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message", is("Review deleted successfully")));
-
-        verify(userRepository).save(user1);
+                .andExpect(jsonPath("$.message").value("Review deleted successfully"));
+        verify(userRepository, times(1)).save(user1);
+        verify(productRepository, times(1)).save(product1);
     }
 
     @Test
     void testDeleteReviewNotFound() throws Exception {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
-        mockMvc.perform(delete("/api/users/1/review/999"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/users/1/review/999")).andExpect(status().isNotFound());
     }
 }

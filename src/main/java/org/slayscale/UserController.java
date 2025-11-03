@@ -83,22 +83,21 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{userId}/review")
-    public ResponseEntity<Map<String, Object>> createReview(@PathVariable Long userId, @RequestBody Review reviewRequest) {
+    @PostMapping("/{userId}/{productId}/review")
+    public ResponseEntity<Map<String, Object>> createReview(@PathVariable Long userId, @PathVariable Long productId, @RequestBody Review reviewRequest) {
         Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) return ResponseEntity.notFound().build();
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (optionalUser.isEmpty() || optionalProduct.isEmpty()) return ResponseEntity.notFound().build();
         User user = optionalUser.get();
+        Product product = optionalProduct.get();
         if (reviewRequest.getText() == null) {
             return ResponseEntity.badRequest().build();
         }
-        Product product = new Product(reviewRequest.getProduct().getCategory(), reviewRequest.getProduct().getUrl());
         Review review = new Review(user, reviewRequest.getRating(), reviewRequest.getText(), product);
-        System.out.println(review.getProduct());
         user.addReview(review);
         product.addReview(review);
         userRepository.save(user);
         productRepository.save(product);
-        // Return only the fields you care about
         Map<String, Object> response = new HashMap<>();
         response.put("rating", review.getRating());
         response.put("text", review.getText());
@@ -106,9 +105,9 @@ public class UserController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @GetMapping("/{id}/reviews")
-    public ResponseEntity<Set<Review>> getReviews(@PathVariable Long id) {
-        Optional<User> optionalUser = userRepository.findById(id);
+    @GetMapping("/{userId}/reviews")
+    public ResponseEntity<Set<Review>> getReviews(@PathVariable Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -127,10 +126,16 @@ public class UserController {
         if (reviewToDelete == null) {
             return ResponseEntity.notFound().build();
         }
-        Product product = reviewToDelete.getProduct();
+        Long productId = reviewToDelete.getProduct().getId();
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (optionalProduct.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Product product =  optionalProduct.get();
         user.removeReview(reviewToDelete);
         product.removeReview(reviewToDelete);
         userRepository.save(user);
+        productRepository.save(product);
         return ResponseEntity.ok(Map.of("message", "Review deleted successfully"));
     }
 }
