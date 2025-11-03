@@ -1,5 +1,6 @@
 package org.slayscale;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,7 @@ public class UserController {
         }
         try {
             User user = new User(username);
-            return ResponseEntity.status(201).body(userRepository.save(user));
+            return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(user));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -83,17 +84,25 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{userId}/{productId}/review")
-    public ResponseEntity<Map<String, Object>> createReview(@PathVariable Long userId, @PathVariable Long productId, @RequestBody Review reviewRequest) {
+    @PostMapping("/{userId}/review")
+    public ResponseEntity<Map<String, Object>> createReview(@PathVariable Long userId, @RequestBody Map<String, Object> body) {
         Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Long productId = Long.valueOf(body.get("productId").toString());
         Optional<Product> optionalProduct = productRepository.findById(productId);
-        if (optionalUser.isEmpty() || optionalProduct.isEmpty()) return ResponseEntity.notFound().build();
+        if (optionalProduct.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         User user = optionalUser.get();
         Product product = optionalProduct.get();
-        if (reviewRequest.getText() == null) {
+        String text = (String) body.get("text");
+        Integer rating = (Integer) body.get("rating");
+        if (text == null) {
             return ResponseEntity.badRequest().build();
         }
-        Review review = new Review(user, reviewRequest.getRating(), reviewRequest.getText(), product);
+        Review review = new Review(user, rating, text, product);
         user.addReview(review);
         product.addReview(review);
         userRepository.save(user);

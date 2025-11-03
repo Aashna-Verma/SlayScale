@@ -151,10 +151,11 @@ public class UserControllerTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         when(productRepository.findById(50L)).thenReturn(Optional.of(product1));
         Map<String, Object> reviewBody = Map.of(
+                "productId", product1.getId(),
                 "rating", 2,
                 "text", "Meh!"
         );
-        mockMvc.perform(post("/api/users/1/50/review")
+        mockMvc.perform(post("/api/users/1/review")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(reviewBody)))
                 .andExpect(status().isCreated())
