@@ -10,7 +10,6 @@ public class Review {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore // avoid infinite recursion
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)

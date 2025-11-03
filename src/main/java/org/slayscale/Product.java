@@ -1,5 +1,6 @@
 package org.slayscale;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -11,16 +12,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Enum<Category> category;
+    private Category category;
     private String url;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Review> reviews;
 
     protected Product() {
     }
 
-    public Product(Enum<Category> category, String url) {
+    public Product(Category category, String url) {
         setCategory(category);
         setUrl(url);
         this.reviews = new HashSet<>();
@@ -34,11 +36,11 @@ public class Product {
         this.id = id;
     }
 
-    public Enum<Category> getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Enum<Category> category) {
+    public void setCategory(Category category) {
         if (category == null ) {
             throw new IllegalArgumentException("Category cannot be null.");
         }

@@ -1,5 +1,7 @@
 package org.slayscale;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Category {
     ELECTRONICS,
     BOOKS,
@@ -8,5 +10,6 @@ public enum Category {
     TOYS,
     SPORTS,
     BEAUTY,
-    AUTOMOTIVE
+    AUTOMOTIVE;
 }
+
