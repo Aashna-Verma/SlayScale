@@ -11,14 +11,18 @@ Each product is identified by its online listing link and categorized by type. U
 - Degree of separation between users in the follow network
 
 ## Current State
-- Core Entities implemented with controllers: `User`, `Product`, and `Review` JPA entities with proper relationships and validations, `UserController` and `ProductController` made for RESTful API endpoints 
-- Backend Functionality: CRUD operations for products and reviews, including adding reviews for users
-- Validation and Error Handling: Unit tests for entities and controllers, input validation for URLs, null checks for entities and exception handling  
+- Implemented `User`, `Product`, and `Review` JPA entities, along with `UserController` and `ProductController`, made for RESTful API endpoints 
+- CRUD operations for products and reviews, including creating a user and adding reviews for users
+- Validation and Error Handling: Unit tests for entities and controllers, input validation for URLs, null checks for entities and exception handling
+ 
 
 ## Next Sprint Plan 
-- Add computation and storing of average ratings for products, and update this dynamically when new reviews are added
+- Dynamically update and store average ratings for products
 - Implement Jaccard Distance for similarity between users
-- Build a basic, minimal UI for browsing products and posting reviews
+- Follow and unfollow other users
+- View products (and their reviews) by category
+- View users (and their reviews)
+- Build a basic SPA with JS for browsing products and posting reviews
 
 ## Database Schema
 <img width="720" height="685" alt="image" src="https://github.com/user-attachments/assets/1677d0ed-99d8-44f5-b1c2-c9aa26653c6b" />
