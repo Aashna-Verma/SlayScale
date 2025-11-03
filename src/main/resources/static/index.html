@@ -1,21 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SlayScale</title>
+    <link rel="stylesheet" href="/global.css" />
+    <style>
+        body {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        main {
+            margin-top: 2rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            color: #555;
+        }
+
+        .btn {
+            display: inline-block;
+            width: fit-content;
+            text-decoration: none;
+        }
+
+    </style>
 </head>
+
 <body>
 <header>
-    <h1>Welcome to SlayScale</h1>
-
+    <h1>Welcome to SlayScale</h1> 
 </header>
 
 <main>
     <section>
-        <h2>Hello!</h2>
-        <p>This is a general landing page for your Spring Boot application.</p>
-        <p>You can edit this file at <code>src/main/resources/templates/index.html</code>.</p>
+        <p class="description">
+            <b>SlayScale</b> is a community-driven platform where users share honest reviews
+            and discover products that truly deliver. Join us to rate, review, and explore
+            what’s worth your time. Powered by genuine voices, not algorithms.
+        </p>
+
+        <a href="/SlayScale/signup" class="btn">Get Started</a>
     </section>
 </main>
 

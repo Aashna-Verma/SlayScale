@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="'Product ' + ${product.id}">Product</title>
+    <link rel="stylesheet" th:href="@{/global.css}" />
+</head>
+<body>
+<h1>SlayScale</h1>
+
+<!-- Back link -->
+<p><a th:href="@{/SlayScale/products}">&larr; Back to Products</a></p>
+
+<!-- Product info -->
+<section class="card">
+    <h2>Product</h2>
+    <p><b>ID:</b> <span th:text="${product.id}">1</span></p>
+    <p><b>Category:</b> <span th:text="${product.category}">ELECTRONICS</span></p>
+    <p><b>URL:</b> <a th:href="${product.url}" th:text="${product.url}">https://example</a></p>
+</section>
+
+<!-- Reviews -->
+<section>
+    <h3>Reviews</h3>
+    <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
+
+    <div th:each="r : ${reviews}" class="card">
+        <div><b>Rating:</b> <span th:text="${r.rating}">5</span></div>
+        <div><b>Text:</b> <span th:text="${r.text}">Great!</span></div>
+        <div class="muted">
+            <span>Review ID: </span><span th:text="${r.id}">10</span>
+        </div>
+    </div>
+</section>
+
+<!-- Add Review Form -->
+<form class="add-product" th:action="@{|/SlayScale/products/${product.id}/reviews|}" method="post">
+    <h3>Add a Review</h3>
+
+    <!-- Alerts -->
+    <div th:if="${error}" class="msg error" th:text="${error}"></div>
+    <div th:if="${success}" class="msg success" th:text="${success}"></div>
+
+    <label for="rating">Rating (1–5)</label>
+    <input id="rating" name="rating" type="number" min="1" max="5" required />
+
+    <label for="text">Text</label>
+    <textarea id="text" name="text" rows="4" placeholder="Write your thoughts..." required></textarea>
+
+    <button type="submit">Post Review</button>
+    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+</form>
+</body>
+</html>
