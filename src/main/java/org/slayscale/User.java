@@ -1,12 +1,17 @@
 package org.slayscale;
 
 import jakarta.persistence.*;
+
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "app_user")
 public class User {
+    public static final double SIMILARITY_THRESHOLD = 0.5d;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +31,7 @@ public class User {
             joinColumns = @JoinColumn(name = "follower_id"),
             inverseJoinColumns = @JoinColumn(name = "following_id")
     )
+
     private Set<User> following;
 
     protected User() {}
@@ -35,6 +41,40 @@ public class User {
         setReviews(new HashSet<>());
         setFollowers(new HashSet<>());
         setFollowing(new HashSet<>());
+    }
+
+    /**
+     * Get the Jaccard similarity between this user and the specified user
+     * based on the products they review.
+     *
+     * @param other The specified user to compare with.
+     * @return The Jaccard similarity, i.e., a ratio between 0.0 and 1.0, where
+     * 0.0 means completely different, and 1.0 means exactly the same.
+     */
+    public double getSimilarity(User other) {
+        if (other == null) throw new IllegalArgumentException("User cannot be null.");
+
+        Set<Product> thisProducts = this.reviews.stream()
+                .map(Review::getProduct)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Set<Product> otherProducts = other.getReviews().stream()
+                .map(Review::getProduct)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (thisProducts.isEmpty() && otherProducts.isEmpty()) {
+            return 0.0d;
+        }
+
+        Set<Product> intersection = new HashSet<>(thisProducts);
+        intersection.retainAll(otherProducts);
+
+        Set<Product> union = new HashSet<>(thisProducts);
+        union.addAll(otherProducts);
+
+        return (double) intersection.size()/union.size();
     }
 
     public Long getId() {

@@ -28,6 +28,18 @@ public class Product {
         this.reviews = new HashSet<>();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product product)) return false;
+        return url != null && url.equals(product.getUrl());
+    }
+
+    @Override
+    public int hashCode() {
+        return url != null ? url.hashCode() : 0;
+    }
+
     public Long getId() {
         return id;
     }
@@ -78,5 +90,4 @@ public class Product {
         if (review == null) throw new IllegalArgumentException("Review cannot be null.");
         this.reviews.remove(review);
     }
-
 }

@@ -2,7 +2,7 @@ package org.slayscale;
 
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ProductTest {
@@ -17,6 +17,12 @@ public class ProductTest {
         review = new Review(user, 4, "vhat a beautiful sign", product);
     }
 
+    @Test
+    public void equals() {
+        Product p2 = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
+        assertEquals(product, p2); // products with same URL should be equal
+        assertEquals(product.hashCode(), p2.hashCode()); // hashCode must match
+    }
 
     @Test
     public void getSetId() {
@@ -63,5 +69,4 @@ public class ProductTest {
         assert (product.getReviews().isEmpty());
         assertThrows(IllegalArgumentException.class, () -> product.removeReview(null));
     }
-
 }
