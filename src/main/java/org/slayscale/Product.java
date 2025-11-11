@@ -13,6 +13,8 @@ public class Product {
     private Long id;
 
     private Category category;
+
+    @Column(unique = true, nullable = false)
     private String url;
 
     @OneToMany(mappedBy = "product", orphanRemoval = true, fetch = FetchType.LAZY)
