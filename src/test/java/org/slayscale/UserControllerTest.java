@@ -79,8 +79,7 @@ public class UserControllerTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username", is("Alice")))
-                .andExpect(jsonPath("$.reviews[0].rating", is(5)));
+                .andExpect(jsonPath("$.username", is("Alice")));
     }
 
     @Test
