@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Products</title>
+    <link rel="stylesheet" th:href="@{/global.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+
+<!-- Tabs -->
+<nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
+    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
+        <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+        <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
+    </div>
+    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
+    <div class="flex justify-end w-12">
+        <a class="" th:href="@{/}">
+            <img src="/assets/log-out.svg">
+        </a>
+    </div>
+</nav>
+
+
+<!-- Users list -->
+<section>
+    <h2>All Users</h2>
+
+    <form id="user-browse" method="get" action="/users" class="controls unset">
+        <!-- SORT -->
+        <label class="uppercase" for="sort">Sort</label>
+        <select class="rounded-full border-pink-400 px-4" id="sort" name="sort" onchange="this.form.submit()">
+            <option value="alpha_asc" th:selected="${sort == 'alpha_asc'}">Alphabetical A to Z</option>
+            <option value="alpha_desc" th:selected="${sort == 'alpha_desc'}">Alphabetical Z to A</option>
+            <option value="most_followed" th:selected="${sort == 'most_followed'}">Most followed</option>
+            <option value="most_similar" th:selected="${sort == 'most_similar'}">Most like me</option>
+            <option value="most_reviews" th:selected="${sort == 'most_reviews'}">Most reviews</option>
+        </select>
+
+        <!-- FILTER -->
+        <label class="uppercase" for="filters">Filter</label>
+        <select class="rounded-full border-pink-400 px-4" id="filters" name="filters" multiple size="4" onchange="this.form.submit()">
+            <option value="following_only" th:selected="${filters?.contains('following_only')}">People I follow</option>
+            <option value="has_reviews" th:selected="${filters?.contains('has_reviews')}">Has reviews</option>
+        </select>
+    </form>
+
+    <div th:if="${#lists.isEmpty(users)}" class="muted">No users yet.</div>
+
+    <div class="flex flex-wrap">
+
+
+        <div th:each="u : ${users}" >
+            <a class="card w-min-96 border border-pink-200" th:href="@{|/SlayScale/products/${u.id}|}" style="text-decoration:none; color:inherit;">
+                
+            </a>
+        </div>
+
+
+    </div>
+</section>
+
+</body>
+</html>

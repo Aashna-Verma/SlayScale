@@ -145,4 +145,19 @@ public class SlayScaleViewController {
 
         return "redirect:/SlayScale/products/{id}";
     }
+
+    @GetMapping("/users")
+    public String usersPage(@RequestParam(value = "error", required = false) String error,
+                               @RequestParam(value = "success", required = false) String success,
+                               Model model) {
+        List<User> users = userController.getAllUsers().getBody();
+        model.addAttribute("users", users);
+
+        // set active tab so the template can highlight it
+        model.addAttribute("activeTab", "users");
+        if (error != null) model.addAttribute("error", error);
+        if (success != null) model.addAttribute("success", success);
+
+        return "users";
+    }
 }

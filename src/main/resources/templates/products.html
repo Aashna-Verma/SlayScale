@@ -9,8 +9,9 @@
 <h1>SlayScale</h1>
 
 <!-- Tabs -->
-<div class="tabs">
-    <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+<div class="flex gap-10 text-black">
+    <a class="" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+    <a class="" th:classappend="${activeTab == 'user'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
 </div>
 
 <!-- Product list -->
