@@ -10,15 +10,16 @@
 </head>
 <body>
 
-
 <!-- Nav -->
 <nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
     <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
-        <a class="tab" th:href="@{/SlayScale/products}">&larr;</a>
+        <a class="tab !opacity-100" th:href="@{/SlayScale/products}">🔙</a>
         <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
         <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
     </div>
+
     <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
+
     <div class="flex justify-end w-12">
         <a class="" th:href="@{/}">
             <img src="/assets/log-out.svg">
@@ -26,16 +27,14 @@
     </div>
 </nav>
 
-
 <!-- Product info -->
 <section >
-    <h1>
+    <h1 class="text-6xl mt-6 mb-10 font-bold">
         #<span th:text="${product.id}">1</span> Product
     </h1>
-    <div class="text-xs rounded-md bg-pink-200 uppercase" th:text="${product.category}">ELECTRONICS</div>
+    <div class="text-xs p-1.5 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
     <p><b>URL:</b> <a th:href="${product.url}" th:text="${product.url}">https://example</a></p>
-
-    \\\\\</section>
+</section>
 
 <!-- Reviews -->
 <section>
@@ -68,5 +67,6 @@
     <button type="submit">Post Review</button>
     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
 </form>
+
 </body>
 </html>

@@ -12,6 +12,7 @@
 <!-- Nav -->
 <nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
     <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
+        <a class="tab !opacity-100" th:href="@{/SlayScale/users}">🔙</a>
         <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
         <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
     </div>
@@ -23,10 +24,8 @@
     </div>
 </nav>
 
-
 <!-- Users list -->
 <section>
-
     <h2 class="text-4xl font-bold my-6" >@<span th:text="${user.getUsername()}">username</span></h2>
 
     <div class="flex flex-wrap gap-2">
@@ -42,7 +41,6 @@
             </div>
         </a>
     </div>
-
 </section>
 
 </body>
