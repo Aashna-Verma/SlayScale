@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "app_user")
 public class User {
-    public static final double SIMILARITY_THRESHOLD = 0.5d;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

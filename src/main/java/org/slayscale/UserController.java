@@ -62,21 +62,17 @@ public class UserController {
 
         User baseUser = optionalUser.get();
         List<Map<String, Object>> similarUsers = new ArrayList<>();
-
         List<User> users = (List<User>) userRepository.findAll();
         for (User user : users) {
             if (user.equals(baseUser)) {
                 continue;
             }
 
-            double similarity = user.getSimilarity(baseUser);
-            if (similarity >= User.SIMILARITY_THRESHOLD) {
-                Map<String, Object> userMap = new HashMap<>();
-                userMap.put("id", user.getId());
-                userMap.put("username", user.getUsername());
-                userMap.put("similarity", similarity);
-                similarUsers.add(userMap);
-            }
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", user.getId());
+            userMap.put("username", user.getUsername());
+            userMap.put("similarity", user.getSimilarity(baseUser));
+            similarUsers.add(userMap);
         }
 
         // sort by similarity descending
