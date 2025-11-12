@@ -22,6 +22,10 @@ public class ProductTest {
         Product p2 = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
         assertEquals(product, p2); // products with same URL should be equal
         assertEquals(product.hashCode(), p2.hashCode()); // hashCode must match
+
+        Product p3 = new Product(Category.ELECTRONICS, "http://a");
+        assertNotEquals(product, p3);
+        assertNotEquals(product.hashCode(), p3.hashCode());
     }
 
     @Test
