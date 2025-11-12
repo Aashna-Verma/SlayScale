@@ -18,6 +18,46 @@ public class UserTest {
     }
 
     @Test
+    void getSimilarity() {
+        Product p1 = new Product(Category.BOOKS, "https://a.co/d/emAuUNh");
+        Product p2 = new Product(Category.BOOKS, "https://a.co/d/fJIJBiG");
+        Product p3 = new Product(Category.BOOKS, "https://a.co/d/3UzLhtu");
+        Product p4 = new Product(Category.BOOKS, "https://a.co/d/6l2BKIa");
+
+        User u1 = new User("Jian_Yang");
+        User u2 = new User("Gavin_Belson");
+
+        Review r1 = new Review(u1, 4, "pretty good", p1);
+        Review r2 = new Review(u1, 3, "ok", p2);
+        Review r3 = new Review(u1, 2, "bad", p3);
+
+        Review r4 = new Review(u2, 5, "amazing", p1);
+        Review r5 = new Review(u2, 3, "ok", p2);
+        Review r6 = new Review(u2, 4, "great", p3);
+        Review r7 = new Review(u2, 5, "the best", p4);
+
+        Review r8 = new Review(u1, 5, "the best again", p4);
+        assertEquals(0.0d, u1.getSimilarity(u2));
+
+        u1.addReview(r1);
+        u1.addReview(r2);
+        u1.addReview(r3);
+
+        u2.addReview(r7);
+        assertEquals(0.0d, u1.getSimilarity(u2));
+
+        u2.addReview(r4);
+        assertEquals(0.25d, u1.getSimilarity(u2));
+
+        u2.addReview(r5);
+        u2.addReview(r6);
+        assertEquals(0.75d, u1.getSimilarity(u2));
+
+        u1.addReview(r8);
+        assertEquals(1.0d, u1.getSimilarity(u2));
+    }
+
+    @Test
     void getSetId() {
         user.setId(1L);
         assertEquals(1L, user.getId());

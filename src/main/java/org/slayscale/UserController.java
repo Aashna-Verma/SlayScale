@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
@@ -21,8 +21,38 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsers(
+            @RequestParam(required = false, defaultValue = "DEFAULT") UserSortStrategy sortStrategy,
+            @RequestParam(required = false) Long baseUserId) {
         List<User> users = (List<User>) userRepository.findAll();
+
+        // Use a registry to store sorting strategies with lambdas to implement them.
+        // Sorting strategies that don't need a base user ID can simply ignore it.
+        // Default strategy does not need to be implemented because we just return users.
+        final Map<UserSortStrategy, BiConsumer<List<User>, Long>> sortStrategyRegistry = Map.of(
+
+                UserSortStrategy.SIMILARITY, (list, id) -> {
+                    if (id == null) {
+                        throw new IllegalArgumentException("baseUserId is required for SIMILARITY sorting");
+                    }
+                    userRepository.findById(id).ifPresent(baseUser ->
+                            list.sort((u1, u2) -> Double.compare(
+                                    u2.getSimilarity(baseUser),
+                                    u1.getSimilarity(baseUser)
+                            ))
+                    );
+                }
+                // Register more sorting strategies here:
+        );
+
+        try {
+            sortStrategyRegistry
+                    .getOrDefault(sortStrategy, (l, i) -> {})
+                    .accept(users, baseUserId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
         return ResponseEntity.ok(users);
     }
 
