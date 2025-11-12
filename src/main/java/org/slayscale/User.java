@@ -1,6 +1,5 @@
 package org.slayscale;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +15,6 @@ public class User {
     private String username;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
     private Set<Review> reviews;
 
     @ManyToMany(mappedBy = "following")
