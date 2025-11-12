@@ -27,12 +27,19 @@
 <!-- Users list -->
 <section>
 
-    <form id="user-browse" method="get" action="/users" class="controls unset">
-        <!-- SORT -->
+    <form method="get" th:action="@{/SlayScale/users}" class="controls unset">
         <label class="uppercase" for="sort">Sort</label>
-        <select class="!rounded-full !border-pink-400 px-4" id="sort" name="sort" onchange="this.form.submit()">
-            <option value="most_followed" th:selected="${sort == 'most_followed'}">Most followed</option>
-            <option value="most_similar" th:selected="${sort == 'most_similar'}">Most like me</option>
+
+        <select class="!rounded-full !border-pink-400 px-4"
+                id="sort"
+                name="sortStrategy"
+                onchange="this.form.submit()">
+            <option value="DEFAULT" th:selected="${sortStrategy == null or sortStrategy == 'DEFAULT'}">
+                Most followed
+            </option>
+            <option value="SIMILARITY" th:selected="${sortStrategy == 'SIMILARITY'}">
+                Most like me
+            </option>
         </select>
     </form>
 

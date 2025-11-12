@@ -147,15 +147,20 @@ public class SlayScaleViewController {
     }
 
     @GetMapping("/users")
-    public String usersPage(@RequestParam(value = "error", required = false) String error,
-                               @RequestParam(value = "success", required = false) String success,
-                               Model model) {
-        List<User> users = userController.getAllUsers().getBody();
-        model.addAttribute("users", users);
+    public String usersPage(
+            @RequestParam(defaultValue = "DEFAULT") UserSortStrategy sortStrategy,
+            @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
+            @RequestParam(value = "error", required = false) String error,
+            @RequestParam(value = "success", required = false) String success,
+            Model model
+    ) {
+        var resp = userController.getAllUsers(sortStrategy, currentUserId);
+        var users = resp.getBody() != null ? resp.getBody() : List.<User>of();
 
-        // set active tab so the template can highlight it
+        model.addAttribute("users", users);
+        model.addAttribute("sortStrategy", sortStrategy.name()); // so the <select> can show the current choice
         model.addAttribute("activeTab", "users");
-        if (error != null) model.addAttribute("error", error);
+        if (error != null)   model.addAttribute("error", error);
         if (success != null) model.addAttribute("success", success);
 
         return "users";

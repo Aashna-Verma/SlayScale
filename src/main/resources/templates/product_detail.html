@@ -13,7 +13,6 @@
 <!-- Nav -->
 <nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
     <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
-        <a class="tab !opacity-100" th:href="@{/SlayScale/products}">🔙</a>
         <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
         <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
     </div>
@@ -29,10 +28,10 @@
 
 <!-- Product info -->
 <section >
-    <h1 class="text-6xl mt-6 mb-10 font-bold">
+    <h1 class="text-6xl mt-6 mb-2 font-bold">
         #<span th:text="${product.id}">1</span> Product
     </h1>
-    <div class="text-xs p-1.5 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
+    <div class="text-xs mb-10 p-1.5 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
     <p><b>URL:</b> <a th:href="${product.url}" th:text="${product.url}">https://example</a></p>
 </section>
 
@@ -41,12 +40,13 @@
     <h2 class="text-4xl font-bold my-6" >Reviews</h2>
     <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
 
-    <div th:each="r : ${reviews}" class="card">
+    <div th:each="r : ${reviews}" class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 ">
         <div><b>Rating:</b> <span th:text="${r.rating}">5</span></div>
         <div><b>Text:</b> <span th:text="${r.text}">Great!</span></div>
         <div class="muted">
             <span>Review ID: </span><span th:text="${r.id}">10</span>
         </div>
+        <p>Author:<span th:text="${r.author.getUsername()}">author</span></p>
     </div>
 </section>
 
