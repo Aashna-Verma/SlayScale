@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
@@ -21,38 +21,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(
-            @RequestParam(required = false, defaultValue = "DEFAULT") UserSortStrategy sortStrategy,
-            @RequestParam(required = false) Long baseUserId) {
+    public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = (List<User>) userRepository.findAll();
-
-        // Use a registry to store sorting strategies with lambdas to implement them.
-        // Sorting strategies that don't need a base user ID can simply ignore it.
-        // Default strategy does not need to be implemented because we just return users.
-        final Map<UserSortStrategy, BiConsumer<List<User>, Long>> sortStrategyRegistry = Map.of(
-
-                UserSortStrategy.SIMILARITY, (list, id) -> {
-                    if (id == null) {
-                        throw new IllegalArgumentException("baseUserId is required for SIMILARITY sorting");
-                    }
-                    userRepository.findById(id).ifPresent(baseUser ->
-                            list.sort((u1, u2) -> Double.compare(
-                                    u2.getSimilarity(baseUser),
-                                    u1.getSimilarity(baseUser)
-                            ))
-                    );
-                }
-                // Register more sorting strategies here:
-        );
-
-        try {
-            sortStrategyRegistry
-                    .getOrDefault(sortStrategy, (l, i) -> {})
-                    .accept(users, baseUserId);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
         return ResponseEntity.ok(users);
     }
 
@@ -142,6 +112,48 @@ public class UserController {
         response.put("text", review.getText());
         response.put("productId", review.getProduct().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{id}/follow/{targetId}")
+    public ResponseEntity<String> followUser(@PathVariable Long id, @PathVariable Long targetId) {
+        if (id.equals(targetId)) {
+            return ResponseEntity.badRequest().body("User cannot follow themselves");
+        }
+        Optional<User> followerOpt = userRepository.findById(id);
+        Optional<User> targetOpt = userRepository.findById(targetId);
+        if (followerOpt.isEmpty() || targetOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        User follower = followerOpt.get();
+        User target = targetOpt.get();
+        if (follower.getFollowing().contains(target)) {
+            return ResponseEntity.ok(follower.getUsername() + " is already following " + target.getUsername());
+        }
+        follower.follow(target);
+        userRepository.save(follower);
+        userRepository.save(target);
+        return ResponseEntity.ok(follower.getUsername() + " is now following " + target.getUsername());
+    }
+
+    @PostMapping("/{id}/unfollow/{targetId}")
+    public ResponseEntity<String> unfollowUser(@PathVariable Long id, @PathVariable Long targetId) {
+        if (id.equals(targetId)) {
+            return ResponseEntity.badRequest().body("User cannot unfollow themselves");
+        }
+        Optional<User> followerOpt = userRepository.findById(id);
+        Optional<User> targetOpt = userRepository.findById(targetId);
+        if (followerOpt.isEmpty() || targetOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        User follower = followerOpt.get();
+        User target = targetOpt.get();
+        if (!follower.getFollowing().contains(target)) {
+            return ResponseEntity.ok(follower.getUsername() + " isn't following " + target.getUsername());
+        }
+        follower.unfollow(target);
+        userRepository.save(follower);
+        userRepository.save(target);
+        return ResponseEntity.ok(follower.getUsername() + " has unfollowed " + target.getUsername());
     }
 
     @GetMapping("/{userId}/reviews")
