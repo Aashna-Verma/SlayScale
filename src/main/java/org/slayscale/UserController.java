@@ -45,15 +45,6 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        userRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/{id}/followers")
     public ResponseEntity<Set<Map<String, ? extends Serializable>>> getFollowers(@PathVariable Long id) {
         return userRepository.findById(id)

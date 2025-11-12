@@ -125,17 +125,67 @@ public class UserControllerTest {
     }
 
     @Test
-    void testDeleteUserSuccess() throws Exception {
-        when(userRepository.existsById(1L)).thenReturn(true);
-        mockMvc.perform(delete("/api/users/1"))
-                .andExpect(status().isNoContent());
-        verify(userRepository).deleteById(1L);
+    void testFollowUserSuccess() throws Exception {
+        mockMvc.perform(post("/api/users/3/follow/4"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Charlie is now following Don"));
+        verify(userRepository, times(1)).save(user3);
+        verify(userRepository, times(1)).save(user4);
     }
 
     @Test
-    void testDeleteUserNotFound() throws Exception {
-        when(userRepository.existsById(99L)).thenReturn(false);
-        mockMvc.perform(delete("/api/users/99"))
+    void testFollowUserAlreadyFollowing() throws Exception {
+        user3.follow(user4);
+        mockMvc.perform(post("/api/users/3/follow/4"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Charlie is already following Don"));
+    }
+
+    @Test
+    void testFollowUserFollowSelf() throws Exception {
+        mockMvc.perform(post("/api/users/1/follow/1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User cannot follow themselves"));
+    }
+
+    @Test
+    void testFollowUserUserNotFound() throws Exception {
+        when(userRepository.findById(3L)).thenReturn(Optional.empty());
+        mockMvc.perform(post("/api/users/3/follow/2"))
+                .andExpect(status().isNotFound());
+    }
+
+    // UNFOLLOW TESTS
+    @Test
+    void testUnfollowUserSuccess() throws Exception {
+        user1.follow(user2);
+
+        mockMvc.perform(post("/api/users/1/unfollow/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Alice has unfollowed Bob"));
+
+        verify(userRepository, times(1)).save(user1);
+        verify(userRepository, times(1)).save(user2);
+    }
+
+    @Test
+    void testUnfollowUserNotFollowing() throws Exception {
+        mockMvc.perform(post("/api/users/1/unfollow/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Alice isn't following Bob"));
+    }
+
+    @Test
+    void testUnfollowUserUnfollowSelf() throws Exception {
+        mockMvc.perform(post("/api/users/1/unfollow/1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("User cannot unfollow themselves"));
+    }
+
+    @Test
+    void testUnfollowUserUserNotFound() throws Exception {
+        when(userRepository.findById(3L)).thenReturn(Optional.empty());
+        mockMvc.perform(post("/api/users/3/unfollow/2"))
                 .andExpect(status().isNotFound());
     }
 
