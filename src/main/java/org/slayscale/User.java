@@ -18,6 +18,7 @@ public class User {
     private String username;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Review> reviews;
 
     @ManyToMany(mappedBy = "following")
@@ -33,6 +34,9 @@ public class User {
 
     @JsonIgnore // avoid infinite recursion
     private Set<User> following;
+
+    private int followerCount;
+    private int followingCount;
 
     protected User() {}
 
@@ -118,6 +122,42 @@ public class User {
         this.reviews.remove(review);
     }
 
+    public int getFollowerCount() {
+        return followerCount;
+    }
+
+    public void setFollowerCount(int followerCount) {
+        if (followerCount <= 0) throw new IllegalArgumentException("Followers count cannot be negative.");
+        this.followerCount = followerCount;
+    }
+
+    public void incrementFollowerCount() {
+        this.followerCount++;
+    }
+
+    public void decrementFollowerCount() {
+        if (this.followerCount <= 0) throw new IllegalArgumentException("Followers count cannot be negative.");
+        this.followerCount--;
+    }
+
+    public int getFollowingCount() {
+        return followingCount;
+    }
+
+    public void setFollowingCount(int followingCount) {
+        if (followingCount <= 0) throw new IllegalArgumentException("Followings count cannot be negative.");
+        this.followingCount = followingCount;
+    }
+
+    public void incrementFollowingCount() {
+        this.followingCount++;
+    }
+
+    public void decrementFollowingCount() {
+        if (this.followingCount <= 0) throw new IllegalArgumentException("Followings count cannot be negative.");
+        this.followingCount--;
+    }
+
     public Set<User> getFollowers() {
         return followers;
     }
@@ -140,7 +180,9 @@ public class User {
         if (user == null) throw new IllegalArgumentException("User cannot be null.");
         if (user.equals(this)) throw new IllegalArgumentException("User cannot follow themselves");
         if (this.following.add(user)) {
+            this.incrementFollowingCount();
             user.followers.add(this);
+            user.incrementFollowerCount();
         }
     }
 
@@ -148,7 +190,9 @@ public class User {
         if (user == null) throw new IllegalArgumentException("User cannot be null.");
         if (user.equals(this)) throw new IllegalArgumentException("User cannot unfollow themselves");
         if (this.following.remove(user)) {
+            this.decrementFollowingCount();
             user.followers.remove(this);
+            user.decrementFollowerCount();
         }
     }
 
@@ -156,7 +200,9 @@ public class User {
         if (user == null) throw new IllegalArgumentException("User cannot be null.");
         if (user.equals(this)) throw new IllegalArgumentException("User cannot remove themselves as follower");
         if (this.followers.remove(user)) {
+            this.decrementFollowerCount();
             user.following.remove(this);
+            user.decrementFollowingCount();
         }
     }
 }

@@ -34,7 +34,7 @@ textarea{
     border-radius: 4px;
 }
 .select{
-    border-radius: 20px;
+    border-radius: 20px !important;
 }
 
 .error,
@@ -92,7 +92,6 @@ button:hover,
 }
 
 .card {
-    border: 1px solid #e5e5e5;
     border-radius: 20px;
     padding: 12px;
     margin-bottom: 10px;

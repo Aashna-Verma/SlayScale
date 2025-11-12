@@ -139,23 +139,41 @@ public class UserTest {
         assertThrows(IllegalArgumentException.class, () -> user.addReview(null));
         assertThrows(IllegalArgumentException.class, () -> user.removeReview(null));
     }
-    
+
     @Test
-    void getSetFollowers() {
-        assertEquals(0, user.getFollowers().size());
-        
-        User user2 = new User("Eric_Bachman");
-        Set<User> followers = new HashSet<>();
-        followers.add(user2);
+    void getSetIncrementDecrementFollowersCount() {
+        assertEquals(0, user.getFollowerCount());
 
-        user.setFollowers(followers);
-        assertEquals(1, user.getFollowers().size());
+        user.setFollowerCount(1);
+        assertEquals(1, user.getFollowerCount());
 
-        assertThrows(IllegalArgumentException.class, () -> user.setFollowers(null));
+        user.incrementFollowerCount();
+        assertEquals(2, user.getFollowerCount());
+
+        user.decrementFollowerCount();
+        assertEquals(1, user.getFollowerCount());
+
+        assertThrows(IllegalArgumentException.class, () -> user.setFollowerCount(-1));
     }
 
     @Test
-    void getSetFollowing() {
+    void getSetIncrementDecrementFollowingCount() {
+        assertEquals(0, user.getFollowingCount());
+
+        user.setFollowingCount(1);
+        assertEquals(1, user.getFollowingCount());
+
+        user.incrementFollowingCount();
+        assertEquals(2, user.getFollowingCount());
+
+        user.decrementFollowingCount();
+        assertEquals(1, user.getFollowingCount());
+
+        assertThrows(IllegalArgumentException.class, () -> user.setFollowingCount(-1));
+    }
+
+    @Test
+    void getSetIncrementDecrementFollowing() {
         assertEquals(0, user.getFollowing().size());
 
         User user2 = new User("Eric_Bachman");
@@ -170,41 +188,41 @@ public class UserTest {
 
     @Test
     void followUnfollowRemoveFollower() {
-        assertEquals(0, user.getFollowing().size());
-        assertEquals(0, user.getFollowers().size());
+        assertEquals(0, user.getFollowingCount());
+        assertEquals(0, user.getFollowerCount());
 
         User user2 = new User("Eric_Bachman");
         User user3 = new User("Russ_Hanneman");
 
         user.follow(user2); // Jian follows Eric
-        assertEquals(1, user.getFollowing().size());
-        assertEquals(0, user.getFollowers().size());
-        assertEquals(0, user2.getFollowing().size());
-        assertEquals(1, user2.getFollowers().size());
+        assertEquals(1, user.getFollowingCount());
+        assertEquals(0, user.getFollowerCount());
+        assertEquals(0, user2.getFollowingCount());
+        assertEquals(1, user2.getFollowerCount());
 
         user.follow(user3); // Jian follows Russ
-        assertEquals(2, user.getFollowing().size());
-        assertEquals(0, user.getFollowers().size());
-        assertEquals(0, user3.getFollowing().size());
-        assertEquals(1, user3.getFollowers().size());
+        assertEquals(2, user.getFollowingCount());
+        assertEquals(0, user.getFollowerCount());
+        assertEquals(0, user3.getFollowingCount());
+        assertEquals(1, user3.getFollowerCount());
 
         user.follow(user3); // Jian follows Russ Hanneman
-        assertEquals(2, user.getFollowing().size());
-        assertEquals(1, user3.getFollowers().size());
+        assertEquals(2, user.getFollowingCount());
+        assertEquals(1, user3.getFollowerCount());
 
         user.unfollow(user2); // Jian unfollows Eric
-        assertEquals(1, user.getFollowing().size());
-        assertEquals(0, user.getFollowers().size());
-        assertEquals(0, user2.getFollowers().size());
-        assertEquals(0, user2.getFollowers().size());
+        assertEquals(1, user.getFollowingCount());
+        assertEquals(0, user.getFollowerCount());
+        assertEquals(0, user2.getFollowerCount());
+        assertEquals(0, user2.getFollowerCount());
 
         user3.removeFollower(user); // Russ removes Jian
-        assertEquals(0, user.getFollowing().size());
-        assertEquals(0, user.getFollowers().size());
-        assertEquals(0, user2.getFollowing().size());
-        assertEquals(0, user2.getFollowers().size());
-        assertEquals(0, user3.getFollowing().size());
-        assertEquals(0, user3.getFollowers().size());
+        assertEquals(0, user.getFollowingCount());
+        assertEquals(0, user.getFollowerCount());
+        assertEquals(0, user2.getFollowingCount());
+        assertEquals(0, user2.getFollowerCount());
+        assertEquals(0, user3.getFollowingCount());
+        assertEquals(0, user3.getFollowerCount());
 
         assertThrows(IllegalArgumentException.class, () -> user.follow(null));
         assertThrows(IllegalArgumentException.class, () -> user.unfollow(null));

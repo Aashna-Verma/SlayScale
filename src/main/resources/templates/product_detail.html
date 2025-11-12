@@ -3,25 +3,43 @@
 <head>
     <meta charset="UTF-8" />
     <title th:text="'Product ' + ${product.id}">Product</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="stylesheet" th:href="@{/global.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
 </head>
 <body>
-<h1>SlayScale</h1>
 
-<!-- Back link -->
-<p><a th:href="@{/SlayScale/products}">&larr; Back to Products</a></p>
+
+<!-- Nav -->
+<nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
+    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
+        <a class="tab" th:href="@{/SlayScale/products}">&larr;</a>
+        <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+        <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
+    </div>
+    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
+    <div class="flex justify-end w-12">
+        <a class="" th:href="@{/}">
+            <img src="/assets/log-out.svg">
+        </a>
+    </div>
+</nav>
+
 
 <!-- Product info -->
-<section class="card">
-    <h2>Product</h2>
-    <p><b>ID:</b> <span th:text="${product.id}">1</span></p>
-    <p><b>Category:</b> <span th:text="${product.category}">ELECTRONICS</span></p>
+<section >
+    <h1>
+        #<span th:text="${product.id}">1</span> Product
+    </h1>
+    <div class="text-xs rounded-md bg-pink-200 uppercase" th:text="${product.category}">ELECTRONICS</div>
     <p><b>URL:</b> <a th:href="${product.url}" th:text="${product.url}">https://example</a></p>
-</section>
+
+    \\\\\</section>
 
 <!-- Reviews -->
 <section>
-    <h3>Reviews</h3>
+    <h2 class="text-4xl font-bold my-6" >Reviews</h2>
     <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
 
     <div th:each="r : ${reviews}" class="card">

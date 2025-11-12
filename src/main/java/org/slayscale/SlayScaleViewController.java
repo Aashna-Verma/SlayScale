@@ -160,4 +160,22 @@ public class SlayScaleViewController {
 
         return "users";
     }
+
+    @GetMapping("/users/{id}")
+    public String specificUserPage(@RequestParam(value = "error", required = false) String error,
+                            @RequestParam(value = "success", required = false) String success,
+                                   @ModelAttribute("currentUserId") Long currentUserId,
+                                   Model model) {
+
+        User user = userController.getUserById(currentUserId).getBody();
+        Set<Review> reviews = userController.getReviews(user.getId()).getBody();
+        model.addAttribute("user", user);
+        model.addAttribute("reviews", reviews);
+
+        // set active tab so the template can highlight it
+        model.addAttribute("activeTab", "users");
+        if (error != null) model.addAttribute("error", error);
+        if (success != null) model.addAttribute("success", success);
+        return "user-detail";
+    }
 }

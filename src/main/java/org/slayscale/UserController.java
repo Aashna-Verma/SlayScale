@@ -14,10 +14,12 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
 
-    public UserController(UserRepository userRepository, ProductRepository productRepository) {
+    public UserController(UserRepository userRepository, ProductRepository productRepository, ReviewRepository reviewRepository) {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.reviewRepository = reviewRepository;
     }
 
     @GetMapping

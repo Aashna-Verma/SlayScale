@@ -14,7 +14,6 @@ public class Review {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore // avoid infinite recursion
     private User author;
 
     private int rating; // 0 - 5 stars
