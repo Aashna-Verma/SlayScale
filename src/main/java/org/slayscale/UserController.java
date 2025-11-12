@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
@@ -52,6 +51,37 @@ public class UserController {
         }
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/similarUsers")
+    public ResponseEntity<List<Map<String, Object>>> getSimilarUsers(@PathVariable Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User baseUser = optionalUser.get();
+        List<Map<String, Object>> similarUsers = new ArrayList<>();
+
+        List<User> users = (List<User>) userRepository.findAll();
+        for (User user : users) {
+            if (user.equals(baseUser)) {
+                continue;
+            }
+
+            double similarity = user.getSimilarity(baseUser);
+            if (similarity >= User.SIMILARITY_THRESHOLD) {
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("id", user.getId());
+                userMap.put("username", user.getUsername());
+                userMap.put("similarity", similarity);
+                similarUsers.add(userMap);
+            }
+        }
+
+        // sort by similarity descending
+        similarUsers.sort(Comparator.comparing(u -> (Double) u.get("similarity"), Comparator.reverseOrder()));
+        return ResponseEntity.ok(similarUsers);
     }
 
     @GetMapping("/{id}/followers")

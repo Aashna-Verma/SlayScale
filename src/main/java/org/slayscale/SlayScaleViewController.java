@@ -1,13 +1,11 @@
 package org.slayscale;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
@@ -26,6 +24,7 @@ public class SlayScaleViewController {
         this.userController = userController;
         this.productController = productController;
     }
+
     @ModelAttribute("currentUserId")
     public Long currentUserId() { return null; }
 
@@ -74,14 +73,13 @@ public class SlayScaleViewController {
     public String createProduct(@RequestParam("category") String category,
                                 @RequestParam("url") String url,
                                 RedirectAttributes ra) {
-
         try {
             Map<String, String> body = Map.of(
                     "category", category.trim(),
                     "url", url.trim()
             );
 
-            ResponseEntity resp = productController.createProduct(body);
+            ResponseEntity<Product> resp = productController.createProduct(body);
 
             if (resp.getStatusCode() == HttpStatus.CREATED) {
                 ra.addAttribute("success", "Product created.");

@@ -75,6 +75,24 @@ public class UserControllerTest {
     }
 
     @Test
+    void testGetSimilarUsers() throws Exception {
+        // Add overlapping reviews so similarity is above threshold
+        Review review2 = new Review(user2, 5, "Great!", product1);
+        user2.addReview(review2);
+        product1.addReview(review2);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+
+        mockMvc.perform(get("/api/users/1/similarUsers"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[*].id").exists())
+                .andExpect(jsonPath("$[*].username").exists())
+                .andExpect(jsonPath("$[*].similarity").exists());
+    }
+
+    @Test
     void testGetUserByIdFound() throws Exception {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
         mockMvc.perform(get("/api/users/1"))
