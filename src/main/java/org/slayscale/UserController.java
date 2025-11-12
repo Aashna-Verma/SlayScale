@@ -84,33 +84,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{userId}/similarUsers")
-    public ResponseEntity<List<Map<String, Object>>> getSimilarUsers(@PathVariable Long userId) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        User baseUser = optionalUser.get();
-        List<Map<String, Object>> similarUsers = new ArrayList<>();
-        List<User> users = (List<User>) userRepository.findAll();
-        for (User user : users) {
-            if (user.equals(baseUser)) {
-                continue;
-            }
-
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("id", user.getId());
-            userMap.put("username", user.getUsername());
-            userMap.put("similarity", user.getSimilarity(baseUser));
-            similarUsers.add(userMap);
-        }
-
-        // sort by similarity descending
-        similarUsers.sort(Comparator.comparing(u -> (Double) u.get("similarity"), Comparator.reverseOrder()));
-        return ResponseEntity.ok(similarUsers);
-    }
-
     @GetMapping("/{id}/followers")
     public ResponseEntity<Set<Map<String, ? extends Serializable>>> getFollowers(@PathVariable Long id) {
         return userRepository.findById(id)
