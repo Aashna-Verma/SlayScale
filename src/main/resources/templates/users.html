@@ -35,6 +35,9 @@
                 name="sortStrategy"
                 onchange="this.form.submit()">
             <option value="DEFAULT" th:selected="${sortStrategy == null or sortStrategy == 'DEFAULT'}">
+                Default
+            </option>
+            <option value="MOST_FOLLOWED" th:selected="${sortStrategy == null or sortStrategy == 'MOST_FOLLOWED'}">
                 Most followed
             </option>
             <option value="SIMILARITY" th:selected="${sortStrategy == 'SIMILARITY'}">
