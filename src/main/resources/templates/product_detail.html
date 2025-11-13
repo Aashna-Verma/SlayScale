@@ -40,8 +40,35 @@
     <h2 class="text-4xl font-bold my-6" >Reviews</h2>
     <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
 
+    <!-- Sort / Filter controls -->
+    <form method="get" style="margin: 8px 0 12px;">
+        <label for="sort">Sort</label>
+        <select id="sort" name="sort" th:value="${sort}">
+            <option value="newest" th:selected="${sort == 'newest'}">Newest</option>
+            <option value="oldest" th:selected="${sort == 'oldest'}">Oldest</option>
+            <option value="rating_desc" th:selected="${sort == 'rating_desc'}">Highest rating</option>
+            <option value="rating_asc" th:selected="${sort == 'rating_asc'}">Lowest rating</option>
+        </select>
+
+        <label for="minRating">Min rating</label>
+        <select id="minRating" name="minRating" th:value="${minRating}">
+            <option value="0" th:selected="${minRating == 0}">All</option>
+            <option value="1" th:selected="${minRating == 1}">1+</option>
+            <option value="2" th:selected="${minRating == 2}">2+</option>
+            <option value="3" th:selected="${minRating == 3}">3+</option>
+            <option value="4" th:selected="${minRating == 4}">4+</option>
+            <option value="5" th:selected="${minRating == 5}">5 only</option>
+        </select>
+
+        <button type="submit">Apply</button>
+    </form>
+
     <div th:each="r : ${reviews}" class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 ">
-        <div><b>Rating:</b> <span th:text="${r.rating}">5</span></div>
+        <div>
+            <span th:each="i : ${#numbers.sequence(1, r.rating)}">★</span>
+            <span th:each="i : ${#numbers.sequence(r.rating + 1, 5)}">☆</span>
+            <span class="muted" th:text="'(' + ${r.rating} + '/5)'"></span>
+        </div>
         <div><b>Text:</b> <span th:text="${r.text}">Great!</span></div>
         <div class="muted">
             <span>Review ID: </span><span th:text="${r.id}">10</span>
@@ -67,6 +94,5 @@
     <button type="submit">Post Review</button>
     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
 </form>
-
 </body>
 </html>
