@@ -4,23 +4,71 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductRepository productRepository;
+
     public ProductController(ProductRepository repo) {
         this.productRepository = repo;
     }
 
+    public ResponseEntity<Set<Review>> getProductReviews(Long id) {
+        return getProductReviews(id, "newest", 0);
+    }
+
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<Set<Review>> getProductReviews(@PathVariable Long id) {
+    public ResponseEntity<Set<Review>> getProductReviews(
+            @PathVariable Long id,
+            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
+            @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating) {
+
         return productRepository.findById(id)
-                .map(product -> ResponseEntity.ok(product.getReviews()))
+                .map(product -> {
+                    Set<Review> reviewsSet = product.getReviews();
+                    if (reviewsSet == null) {
+                        reviewsSet = Set.of();
+                    }
+
+                    // Filter by minimum rating
+                    var filtered = reviewsSet.stream()
+                            .filter(r -> r.getRating() >= (minRating == null ? 0 : minRating));
+
+                    final String sortOption = (sort == null ? "newest" : sort);
+
+                    Comparator<Review> cmp;
+                    switch (sortOption) {
+                        case "oldest":
+                            cmp = Comparator.comparing(Review::getId);
+                            break;
+                        case "rating_desc":
+                            cmp = Comparator.comparingInt(Review::getRating).reversed()
+                                    .thenComparing(Review::getId, Comparator.reverseOrder());
+                            break;
+                        case "rating_asc":
+                            cmp = Comparator.comparingInt(Review::getRating)
+                                    .thenComparing(Review::getId);
+                            break;
+                        case "newest":
+                        default:
+                            cmp = Comparator.comparing(Review::getId).reversed();
+                            break;
+                    }
+
+                    var sortedList = filtered.sorted(cmp).collect(Collectors.toList());
+                    Set<Review> sortedSet = new LinkedHashSet<>(sortedList);
+
+                    return ResponseEntity.ok(sortedSet);
+                })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 

@@ -131,6 +131,4 @@ class ProductControllerAssertTests {
         assertNotNull(res.getBody());
         assertTrue(res.getBody().isEmpty());
     }
-
-
 }

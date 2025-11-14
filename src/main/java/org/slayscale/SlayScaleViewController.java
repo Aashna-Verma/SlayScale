@@ -8,12 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/SlayScale")
@@ -39,7 +37,9 @@ public class SlayScaleViewController {
     }
 
     @PostMapping("/signup")
-    public String performSignup(@RequestParam("username") String username, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String performSignup(@RequestParam("username") String username,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
         try {
             Map<String, String> body = Map.of("username", username.trim());
             ResponseEntity<User> response = userController.createUser(body);
@@ -98,7 +98,7 @@ public class SlayScaleViewController {
         return "redirect:/SlayScale/products";
     }
 
-    // UPDATED: supports sort + minRating for the detail page
+    // NOW supports sort + minRating and delegates to ProductController's filter endpoint
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,
                                 @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
@@ -110,35 +110,9 @@ public class SlayScaleViewController {
         Product product = productController.getProduct(id);
         model.addAttribute("product", product);
 
-        ResponseEntity<Set<Review>> reviewsResp = productController.getProductReviews(id);
-        Set<Review> reviewsSet = (reviewsResp != null && reviewsResp.getBody() != null) ? reviewsResp.getBody() : Set.of();
+        ResponseEntity<Set<Review>> reviewsResp = productController.getProductReviews(id, sort, minRating);
+        Set<Review> reviews = (reviewsResp != null && reviewsResp.getBody() != null) ? reviewsResp.getBody() : Set.of();
 
-        // Filter by minimum rating
-        var filtered = reviewsSet.stream()
-                .filter(r -> r.getRating() >= (minRating == null ? 0 : minRating));
-
-        // Sort: use classic switch with breaks (no arrow fallthrough issues)
-        Comparator<Review> cmp;
-        if (sort == null) sort = "newest";
-        switch (sort) {
-            case "oldest":
-                cmp = Comparator.comparing(Review::getId);
-                break;
-            case "rating_desc":
-                cmp = Comparator.comparingInt(Review::getRating).reversed()
-                        .thenComparing(Review::getId, Comparator.reverseOrder());
-                break;
-            case "rating_asc":
-                cmp = Comparator.comparingInt(Review::getRating)
-                        .thenComparing(Review::getId);
-                break;
-            case "newest":
-            default:
-                cmp = Comparator.comparing(Review::getId).reversed();
-                break;
-        }
-
-        var reviews = filtered.sorted(cmp).collect(Collectors.toList());
         model.addAttribute("reviews", reviews);
         model.addAttribute("sort", sort);
         model.addAttribute("minRating", minRating);
