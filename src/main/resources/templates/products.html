@@ -3,26 +3,39 @@
 <head>
     <meta charset="UTF-8" />
     <title>Products</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="stylesheet" th:href="@{/global.css}" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body>
-<h1>SlayScale</h1>
 
-<!-- Tabs -->
-<div class="tabs">
-    <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
-</div>
+<!-- Nav -->
+<nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
+    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
+        <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+        <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
+    </div>
+    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
+    <div class="flex justify-end w-12">
+        <a class="" th:href="@{/}">
+            <img src="/assets/log-out.svg">
+        </a>
+    </div>
+</nav>
 
 <!-- Product list -->
 <section>
-    <h2>All Products</h2>
+    <h2 class="text-4xl font-bold my-6">All Products</h2>
     <div th:if="${#lists.isEmpty(products)}" class="muted">No products yet.</div>
 
-    <div th:each="p : ${products}" class="card">
-        <a th:href="@{|/SlayScale/products/${p.id}|}" style="text-decoration:none; color:inherit;">
-            <div><b>ID:</b> <span th:text="${p.id}">1</span></div>
-            <div><b>Category:</b> <span th:text="${p.category}">ELECTRONICS</span></div>
-            <div><b>URL:</b> <a th:href="${p.url}" th:text="${p.url}">https://example</a></div>
+    <div class="flex flex-wrap gap-2">
+        <a th:each="p : ${products}"
+           class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 "
+           th:href="@{|/SlayScale/products/${p.id}|}"
+           style="text-decoration:none; color:inherit;">
+            <p>ID: <span th:text="${p.id}">0</span></p>
+            <p>Category: <span th:text="${p.category}">0</span></p>
+            <p>URL: <span th:text="${p.url}">link</span></p>
         </a>
     </div>
 </section>

@@ -26,7 +26,9 @@ public class SlayScaleViewController {
     }
 
     @ModelAttribute("currentUserId")
-    public Long currentUserId() { return null; }
+    public Long currentUserId() {
+        return null;
+    }
 
     @GetMapping("/signup")
     public String signupForm(@RequestParam(value = "error", required = false) String error, Model model) {
@@ -38,7 +40,7 @@ public class SlayScaleViewController {
     public String performSignup(@RequestParam("username") String username, HttpSession session, RedirectAttributes redirectAttributes) {
         try {
             Map<String, String> body = Map.of("username", username.trim());
-            ResponseEntity<User> response  = userController.createUser(body);
+            ResponseEntity<User> response = userController.createUser(body);
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
@@ -144,5 +146,33 @@ public class SlayScaleViewController {
         }
 
         return "redirect:/SlayScale/products/{id}";
+    }
+
+    @GetMapping("/users")
+    public String usersPage(
+            @RequestParam(defaultValue = "DEFAULT") UserSortStrategy sortStrategy,
+            @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
+            Model model
+    ) {
+        var resp = userController.getAllUsers(sortStrategy, currentUserId);
+        var users = resp.getBody() != null ? resp.getBody() : List.<User>of();
+
+        model.addAttribute("users", users);
+        model.addAttribute("sortStrategy", sortStrategy.name()); // so the <select> can show the current choice
+        model.addAttribute("activeTab", "users");
+
+        return "users";
+    }
+
+    @GetMapping("/users/{id}")
+    public String specificUserPage(@PathVariable Long id ,
+                                   Model model) {
+
+        User user = userController.getUserById(id).getBody();
+        Set<Review> reviews = userController.getReviews(id).getBody();
+        model.addAttribute("user", user);
+        model.addAttribute("reviews", reviews);
+
+        return "user-detail";
     }
 }

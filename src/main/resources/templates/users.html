@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Products</title>
+    <link rel="stylesheet" th:href="@{/global.css}" />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
+    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
+        <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
+        <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
+    </div>
+    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
+    <div class="flex justify-end w-12">
+        <a class="" th:href="@{/}">
+            <img src="/assets/log-out.svg">
+        </a>
+    </div>
+</nav>
+
+
+<!-- Users list -->
+<section>
+
+    <form method="get" th:action="@{/SlayScale/users}" class="controls unset">
+        <label class="uppercase" for="sort">Sort</label>
+
+        <select class="!rounded-full !border-pink-400 px-4"
+                id="sort"
+                name="sortStrategy"
+                onchange="this.form.submit()">
+            <option value="DEFAULT" th:selected="${sortStrategy == null or sortStrategy == 'DEFAULT'}">
+                Default
+            </option>
+            <option value="MOST_FOLLOWED" th:selected="${sortStrategy == null or sortStrategy == 'MOST_FOLLOWED'}">
+                Most followed
+            </option>
+            <option value="SIMILARITY" th:selected="${sortStrategy == 'SIMILARITY'}">
+                Most like me
+            </option>
+        </select>
+    </form>
+
+    <h2 class="text-4xl font-bold my-6">All Users</h2>
+    <div th:if="${#lists.isEmpty(users)}" class="muted">No users yet.</div>
+
+    <div class="flex flex-wrap gap-2">
+        <a th:each="u : ${users}"
+           class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 "
+           th:href="@{|/SlayScale/users/${u.id}|}"
+           style="text-decoration:none; color:inherit;">
+
+            <p class="text-lg font-bold">@<span th:text="${u.username}"></span></p>
+            <p>Followers: <span th:text="${u.followerCount}">0</span></p>
+            <p>Following: <span th:text="${u.followingCount}">0</span></p>
+        </a>
+    </div>
+
+</section>
+
+</body>
+</html>
