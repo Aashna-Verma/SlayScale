@@ -26,7 +26,9 @@ public class SlayScaleViewController {
     }
 
     @ModelAttribute("currentUserId")
-    public Long currentUserId() { return null; }
+    public Long currentUserId() {
+        return null;
+    }
 
     @GetMapping("/signup")
     public String signupForm(@RequestParam(value = "error", required = false) String error, Model model) {
@@ -38,7 +40,7 @@ public class SlayScaleViewController {
     public String performSignup(@RequestParam("username") String username, HttpSession session, RedirectAttributes redirectAttributes) {
         try {
             Map<String, String> body = Map.of("username", username.trim());
-            ResponseEntity<User> response  = userController.createUser(body);
+            ResponseEntity<User> response = userController.createUser(body);
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
@@ -160,7 +162,7 @@ public class SlayScaleViewController {
         model.addAttribute("users", users);
         model.addAttribute("sortStrategy", sortStrategy.name()); // so the <select> can show the current choice
         model.addAttribute("activeTab", "users");
-        if (error != null)   model.addAttribute("error", error);
+        if (error != null) model.addAttribute("error", error);
         if (success != null) model.addAttribute("success", success);
 
         return "users";
@@ -168,12 +170,12 @@ public class SlayScaleViewController {
 
     @GetMapping("/users/{id}")
     public String specificUserPage(@RequestParam(value = "error", required = false) String error,
-                            @RequestParam(value = "success", required = false) String success,
-                                   @ModelAttribute("currentUserId") Long currentUserId,
+                                   @RequestParam(value = "success", required = false) String success,
+                                   @PathVariable Long id ,
                                    Model model) {
 
-        User user = userController.getUserById(currentUserId).getBody();
-        Set<Review> reviews = userController.getReviews(user.getId()).getBody();
+        User user = userController.getUserById(id).getBody();
+        Set<Review> reviews = userController.getReviews(id).getBody();
         model.addAttribute("user", user);
         model.addAttribute("reviews", reviews);
 
