@@ -31,27 +31,29 @@
     <h1 class="text-6xl mt-6 mb-2 font-bold">
         #<span th:text="${product.id}">1</span> Product
     </h1>
-    <div class="text-xs mb-10 p-1.5 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
+    <div class="text-xs mb-5 p-1.5 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
     <p><b>URL:</b> <a th:href="${product.url}" th:text="${product.url}">https://example</a></p>
 </section>
 
 <!-- Reviews -->
 <section>
     <h2 class="text-4xl font-bold my-6" >Reviews</h2>
-    <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
 
     <!-- Sort / Filter controls -->
-    <form method="get" style="margin: 8px 0 12px;">
-        <label for="sort">Sort</label>
-        <select id="sort" name="sort" th:value="${sort}">
+    <form method="get" class="controls flex flex-col sm:flex-row space-x-6">
+        <div class="flex flex-col w-full">
+        <label class="uppercase"  for="sort">Sort</label>
+        <select class="!rounded-full !border-pink-400 px-4" id="sort" name="sort" th:value="${sort}" onchange="this.form.submit()">
             <option value="newest" th:selected="${sort == 'newest'}">Newest</option>
             <option value="oldest" th:selected="${sort == 'oldest'}">Oldest</option>
             <option value="rating_desc" th:selected="${sort == 'rating_desc'}">Highest rating</option>
             <option value="rating_asc" th:selected="${sort == 'rating_asc'}">Lowest rating</option>
         </select>
+        </div>
 
-        <label for="minRating">Min rating</label>
-        <select id="minRating" name="minRating" th:value="${minRating}">
+        <div class="flex flex-col w-full">
+        <label class="uppercase" for="minRating">Min rating</label>
+        <select class="!rounded-full !border-pink-400 px-4" id="minRating" name="minRating" th:value="${minRating}" onchange="this.form.submit()">
             <option value="0" th:selected="${minRating == 0}">All</option>
             <option value="1" th:selected="${minRating == 1}">1+</option>
             <option value="2" th:selected="${minRating == 2}">2+</option>
@@ -59,10 +61,12 @@
             <option value="4" th:selected="${minRating == 4}">4+</option>
             <option value="5" th:selected="${minRating == 5}">5 only</option>
         </select>
-
-        <button type="submit">Apply</button>
+        </div>
     </form>
 
+    <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
+
+    <div class="flex flex-wrap gap-4">
     <div th:each="r : ${reviews}" class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 ">
         <div>
             <span th:each="i : ${#numbers.sequence(1, r.rating)}">★</span>
@@ -75,10 +79,11 @@
         </div>
         <p>Author:<span th:text="${r.author.getUsername()}">author</span></p>
     </div>
+    </div>
 </section>
 
 <!-- Add Review Form -->
-<form class="add-product" th:action="@{|/SlayScale/products/${product.id}/reviews|}" method="post">
+<form class="form add-product" th:action="@{|/SlayScale/products/${product.id}/reviews|}" method="post">
     <h3>Add a Review</h3>
 
     <!-- Alerts -->

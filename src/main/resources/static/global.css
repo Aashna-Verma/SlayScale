@@ -4,7 +4,7 @@ body {
     padding: 40px;
     min-height: 100vh;
 }
-form {
+.form {
     width: 320px;
     margin: 100px auto;
     padding: 24px 32px;
@@ -32,7 +32,6 @@ textarea{
 .select{
     border-radius: 20px !important;
 }
-
 .error,
 .success {
     font-size: 12px;

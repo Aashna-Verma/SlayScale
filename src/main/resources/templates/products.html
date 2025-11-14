@@ -37,26 +37,11 @@
             <p>Category: <span th:text="${p.category}">0</span></p>
             <p>URL: <span th:text="${p.url}">link</span></p>
         </a>
-
-        <!-- Reviews under product -->
-        <div style="margin-top:10px;">
-            <h4>Reviews</h4>
-            <div th:if="${#lists.isEmpty(p.reviews)}" class="muted">No reviews yet.</div>
-
-            <div th:each="r : ${p.reviews}" class="card" style="margin:6px 0;">
-                <div>
-                    <span th:each="i : ${#numbers.sequence(1, r.rating)}">★</span>
-                    <span th:each="i : ${#numbers.sequence(r.rating + 1, 5)}">☆</span>
-                    <span class="muted" th:text="'(' + ${r.rating} + '/5)'"></span>
-                </div>
-                <div><b>Review:</b> <span th:text="${r.text}">Great!</span></div>
-            </div>
-        </div>
     </div>
 </section>
 
 <!-- Add product form -->
-<form class="add-product" th:action="@{/SlayScale/products}" method="post">
+<form class="form add-product" th:action="@{/SlayScale/products}" method="post">
     <h3>Add a Product</h3>
 
     <!-- Alerts -->
