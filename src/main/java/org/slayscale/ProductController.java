@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -23,7 +24,6 @@ public class ProductController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // CREATE
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Product> createProduct(@RequestBody Map<String,String> body) {
@@ -32,9 +32,19 @@ public class ProductController {
         if (url == null || url.isBlank() || category == null || category.isBlank()) {
             return ResponseEntity.badRequest().build();
         }
+
         Category parsed;
-        try { parsed = Category.valueOf(category.toUpperCase()); }
-        catch (IllegalArgumentException e) { return ResponseEntity.badRequest().build(); }
+        try {
+            parsed = Category.valueOf(category.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<Product> existing = productRepository.findByUrl(url.trim());
+        if (existing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
         Product saved = productRepository.save(new Product(parsed, url.trim()));
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
@@ -52,14 +62,12 @@ public class ProductController {
         return productRepository.findAll();
     }
 
-    // READ one
     @GetMapping("/{id}")
     public Product getProduct(@PathVariable Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id) {
