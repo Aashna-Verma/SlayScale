@@ -42,9 +42,11 @@ public class User {
 
     public User(String username) {
         setUsername(username);
-        setReviews(new HashSet<>());
-        setFollowers(new HashSet<>());
-        setFollowing(new HashSet<>());
+        this.reviews = new HashSet<>();
+        this.followers = new HashSet<>();
+        this.following = new HashSet<>();
+        this.followerCount = 0;
+        this.followingCount = 0;
     }
 
     /**
@@ -127,7 +129,7 @@ public class User {
     }
 
     public void setFollowerCount(int followerCount) {
-        if (followerCount <= 0) throw new IllegalArgumentException("Followers count cannot be negative.");
+        if (followerCount < 0) throw new IllegalArgumentException("Followers count cannot be negative.");
         this.followerCount = followerCount;
     }
 
@@ -145,7 +147,7 @@ public class User {
     }
 
     public void setFollowingCount(int followingCount) {
-        if (followingCount <= 0) throw new IllegalArgumentException("Followings count cannot be negative.");
+        if (followingCount < 0) throw new IllegalArgumentException("Followings count cannot be negative.");
         this.followingCount = followingCount;
     }
 
