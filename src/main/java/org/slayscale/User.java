@@ -1,7 +1,7 @@
 package org.slayscale;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -21,6 +21,7 @@ public class User {
     private Set<Review> reviews;
 
     @ManyToMany(mappedBy = "following")
+    @JsonIgnore // avoid infinite recursion
     private Set<User> followers;
 
     @ManyToMany
@@ -30,6 +31,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "following_id")
     )
 
+    @JsonIgnore // avoid infinite recursion
     private Set<User> following;
 
     protected User() {}
