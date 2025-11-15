@@ -11,19 +11,28 @@ Each product is identified by its online listing link and categorized by type. U
 - Degree of separation between users in the follow network
 
 ## Current State
-- Able to create a new user and add a review by making HTTP requests to the backend 
-- Implemented `User`, `Product`, and `Review` JPA entities, along with `UserController` and `ProductController`, made for RESTful API endpoints 
+- Able to create a new user and add a review by making HTTP requests to the backend
+- Implemented `User`, `Product`, and `Review` JPA entities, along with `UserController` and `ProductController`, made for RESTful API endpoints
 - CRUD operations for products and reviews, including creating a user and adding reviews for users
 - Validation and Error Handling: Unit tests for entities and controllers, input validation for URLs, null checks for entities and exception handling
- 
+- Added username uniqueness checks and related validation
+- Added RESTful API endpoints for:
+    - Following and unfollowing users
+    - Retrieving followers and following lists
+    - Retrieving and filtering all reviews for a given product and/or created by a given user
+    - Retrieving similar reviewers
+- Added product search filtering by name and by category
+- Added average rating calculation for products
+- Added helper utilities for statistical computations
+- Implemented Jaccard Distance similarity between users based on shared reviewed products
+- Improved error messages and unified response structure
+- Added more robust unit tests for new controller paths, validation logic, and edge cases
 
-## Next Sprint Plan 
-- Dynamically update and store average ratings for products
-- Implement Jaccard Distance for similarity between users
-- Follow and unfollow other users
-- View products (and their reviews) by category
-- View users (and their reviews)
-- Build a basic SPA with JS for browsing products and posting reviews
+## Next Sprint Plan
+- Implement a sign-in form for existing users to login
+- Implement an SPA to support the client-side
 
 ## Database Schema
 <img width="720" height="685" alt="image" src="https://github.com/user-attachments/assets/1677d0ed-99d8-44f5-b1c2-c9aa26653c6b" />
+
+## UML Diagram
