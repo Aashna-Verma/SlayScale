@@ -1,5 +1,6 @@
 package org.slayscale;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -12,6 +13,17 @@ public class SlayScaleApplication {
     private static final Logger log = LoggerFactory.getLogger(SlayScaleApplication.class);
 
     public static void main(String[] args) {
+        // Load dotenv BEFORE Spring initializes properties
+        try {
+            Dotenv dotenv = Dotenv.configure().load();
+
+            dotenv.entries().forEach(entry -> {
+                System.setProperty(entry.getKey(), entry.getValue());
+            });
+
+        } catch (Exception e) {
+            System.out.println(".env not found, skipping");
+        }
         SpringApplication.run(SlayScaleApplication.class, args);
     }
 
