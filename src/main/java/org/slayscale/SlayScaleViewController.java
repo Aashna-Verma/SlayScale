@@ -165,14 +165,38 @@ public class SlayScaleViewController {
     }
 
     @GetMapping("/users/{id}")
-    public String specificUserPage(@PathVariable Long id ,
-                                   Model model) {
+    public String specificUserPage( @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
+                                    @PathVariable Long id,
+                                    Model model) {
 
         User user = userController.getUserById(id).getBody();
+        User currentUser = userController.getUserById(currentUserId).getBody();
         Set<Review> reviews = userController.getReviews(id).getBody();
+
+        boolean isSelf = user.getId().equals(currentUserId);
+        boolean isFollowing = currentUser.getFollowing().contains(user);
+
+        model.addAttribute("isSelf", isSelf);
+        model.addAttribute("isFollowing", isFollowing);
         model.addAttribute("user", user);
         model.addAttribute("reviews", reviews);
 
         return "user-detail";
+    }
+
+    @PostMapping("/users/{id}")
+    public String toggleFollow(
+            @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
+            @PathVariable Long id) {
+
+        User user = userController.getUserById(id).getBody();
+        User currentUser = userController.getUserById(currentUserId).getBody();
+
+        if (currentUser.getFollowing().contains(user))
+            userController.unfollowUser(currentUserId, id);
+        else
+            userController.followUser(currentUserId, id);
+
+        return "redirect:/SlayScale/users/{id}";
     }
 }
