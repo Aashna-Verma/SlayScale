@@ -18,18 +18,8 @@ public class LambdaTestController {
 
     @GetMapping("/lambda")
     public ResponseEntity<String> testLambda() {
-        User user1 = new User();
-        user1.setId(1L);
-        user1.setUsername("test1");
-        Product product = new Product(Category.AUTOMOTIVE,"http:/asdadads");
-        user1.addReview(new Review(user1,2,"asdad",product));
-        User user2 = new User();
-        user2.setId(2L);
-        user2.setUsername("test2");
-        user2.addReview(new Review(user2,2,"asdad",product));
-
         try {
-            String response = lambdaService.getSimilarity(user1, user2);
+            String response = lambdaService.seedData();
             return ResponseEntity.ok("Lambda response: " + response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
