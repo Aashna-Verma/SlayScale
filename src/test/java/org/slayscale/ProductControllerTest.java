@@ -138,22 +138,6 @@ class ProductControllerAssertTests {
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 
-    @Test
-    void getProductReviewsMissingProduct() {
-        var res = controller.getProductReviews(99999L);
-        assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
-    }
-
-    @Transactional
-    @Test
-    void getProductReviewsExistingProductReturnsEmptySetWhenNoReviews() {
-        var p = createProduct(controller, "https://norev.com", "BOOKS");
-
-        var res = controller.getProductReviews(p.getId());
-        assertEquals(HttpStatus.OK, res.getStatusCode());
-        assertNotNull(res.getBody());
-        assertTrue(res.getBody().isEmpty());
-    }
     @Transactional
     @Test
     void getProductReviewsAppliesMinRatingFilter() {

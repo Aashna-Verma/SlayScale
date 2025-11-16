@@ -8,6 +8,8 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    public static final int MIN_RATING = 0;
+    public static final int MAX_RATING = 5;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore // avoid infinite recursion

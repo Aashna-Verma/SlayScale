@@ -24,10 +24,6 @@ public class ProductController {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<Set<Review>> getProductReviews(Long id) {
-        return getProductReviews(id, "newest", 0, null);
-    }
-
     @GetMapping("/{id}/reviews")
     public ResponseEntity<Set<Review>> getProductReviews(
             @PathVariable Long id,
@@ -46,11 +42,15 @@ public class ProductController {
             reviewsSet = Set.of();
         }
 
+        int effectiveMin = (minRating == null ? Review.MIN_RATING : minRating);
+        if (effectiveMin < Review.MIN_RATING || effectiveMin > Review.MAX_RATING) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         var stream = reviewsSet.stream()
-                .filter(r -> r.getRating() >= (minRating == null ? 0 : minRating));
+                .filter(r -> r.getRating() >= effectiveMin);
 
-        String sortOption = (sort == null ? "newest" : sort.toLowerCase());
-
+        String sortOption = sort.toLowerCase();
         Comparator<Review> cmp;
         switch (sortOption) {
             case "oldest":
@@ -89,7 +89,6 @@ public class ProductController {
                 break;
         }
 
-        //Sort and return
         Set<Review> sortedSet = new LinkedHashSet<>(
                 stream.sorted(cmp).collect(Collectors.toList())
         );

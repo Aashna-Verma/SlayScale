@@ -116,7 +116,7 @@ public class SlayScaleViewController {
         model.addAttribute("sort", sort);
         model.addAttribute("minRating", minRating);
 
-// If user is not logged in but similarity is selected, fall back to newest
+        // If user is not logged in but similarity is selected, fall back to newest
         String effectiveSort = sort;
         if ("similarity".equalsIgnoreCase(sort) && currentUserId == null) {
             effectiveSort = "newest";
