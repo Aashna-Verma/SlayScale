@@ -9,10 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.Set;
 
 @DataJpaTest
 class ProductControllerAssertTests {
@@ -20,18 +19,21 @@ class ProductControllerAssertTests {
     @Autowired
     ProductRepository repo;
 
+    @Autowired
+    UserRepository userRepository;
+
     private ProductController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ProductController(repo);
+        controller = new ProductController(repo, userRepository);
     }
 
     @AfterEach
     void clean() { repo.deleteAll(); }
 
     private ProductController controller() {
-        return new ProductController(repo);
+        return new ProductController(repo, userRepository);
     }
 
     private Product createProduct(ProductController controller, String url, String category) {
@@ -66,14 +68,35 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void listProductsReturnsAllAndFiltersByCategory() {
+    void listProductsNoCategoryReturnsAll() {
         createProduct(controller, "https://a.com", "BOOKS");
         createProduct(controller, "https://b.com", "ELECTRONICS");
 
         assertEquals(2, controller.listProducts(null).size());
+        assertEquals(2, controller.listProducts("").size());
+    }
+
+    @Test
+    void listProductsValidCategoryFiltersCorrectly() {
+        createProduct(controller, "https://a.com", "BOOKS");
+        createProduct(controller, "https://b.com", "ELECTRONICS");
+
+        assertEquals(1, controller.listProducts("BOOKS").size());
         assertEquals(1, controller.listProducts("books").size());
+        assertEquals(1, controller.listProducts("   books   ").size());
+
+        var onlyBooks = controller.listProducts("books");
+        assertEquals(Category.BOOKS, onlyBooks.get(0).getCategory());
+    }
+
+    @Test
+    void listProductsInvalidCategoryReturnsAll() {
+        createProduct(controller, "https://a.com", "BOOKS");
+        createProduct(controller, "https://b.com", "ELECTRONICS");
+
         assertEquals(0, controller.listProducts("toys").size());
     }
+
 
     @Test
     void deleteProductRemovesItem() {
@@ -130,5 +153,48 @@ class ProductControllerAssertTests {
         assertEquals(HttpStatus.OK, res.getStatusCode());
         assertNotNull(res.getBody());
         assertTrue(res.getBody().isEmpty());
+    }
+    @Transactional
+    @Test
+    void getProductReviewsAppliesMinRatingFilter() {
+        var p = createProduct(controller, "https://minrating.com", "BOOKS");
+
+        User u = new User("minrating-user");
+
+        Review high = new Review(u, 5, "great", p);
+        Review low  = new Review(u, 2, "meh", p);
+
+        u.addReview(high);
+        u.addReview(low);
+        p.addReview(high);
+        p.addReview(low);
+
+        userRepository.save(u);
+
+        ResponseEntity<Set<Review>> res =
+                controller.getProductReviews(p.getId(), "newest", 4, null);
+
+        assertEquals(HttpStatus.OK, res.getStatusCode());
+        assertNotNull(res.getBody());
+        assertFalse(res.getBody().isEmpty());
+        assertTrue(res.getBody().stream().allMatch(r -> r.getRating() >= 4));
+    }
+    @Test
+    void getProductReviewsSimilarityWithoutBaseUserReturnsBadRequest() {
+        var p = createProduct(controller, "https://similar-nobase.com", "BOOKS");
+
+        ResponseEntity<Set<Review>> res =
+                controller.getProductReviews(p.getId(), "similarity", 0, null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
+    }
+    @Test
+    void getProductReviewsSimilarityWithUnknownUserReturnsBadRequest() {
+        var p = createProduct(controller, "https://similar-unknown.com", "BOOKS");
+
+        ResponseEntity<Set<Review>> res =
+                controller.getProductReviews(p.getId(), "similarity", 0, 99999L);
+
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 }

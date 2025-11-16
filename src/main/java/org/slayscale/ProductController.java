@@ -4,24 +4,96 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductRepository productRepository;
-    public ProductController(ProductRepository repo) {
+    private final UserRepository userRepository;
+
+    public ProductController(ProductRepository repo, UserRepository userRepository) {
         this.productRepository = repo;
+        this.userRepository = userRepository;
+    }
+
+    public ResponseEntity<Set<Review>> getProductReviews(Long id) {
+        return getProductReviews(id, "newest", 0, null);
     }
 
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<Set<Review>> getProductReviews(@PathVariable Long id) {
-        return productRepository.findById(id)
-                .map(product -> ResponseEntity.ok(product.getReviews()))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<Set<Review>> getProductReviews(
+            @PathVariable Long id,
+            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
+            @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating,
+            @RequestParam(value = "baseUserId", required = false) Long baseUserId) {
+
+        Optional<Product> productOpt = productRepository.findById(id);
+        if (productOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Product product = productOpt.get();
+        Set<Review> reviewsSet = product.getReviews();
+        if (reviewsSet == null) {
+            reviewsSet = Set.of();
+        }
+
+        var stream = reviewsSet.stream()
+                .filter(r -> r.getRating() >= (minRating == null ? 0 : minRating));
+
+        String sortOption = (sort == null ? "newest" : sort.toLowerCase());
+
+        Comparator<Review> cmp;
+        switch (sortOption) {
+            case "oldest":
+                cmp = Comparator.comparing(Review::getId);
+                break;
+
+            case "rating_desc":
+                cmp = Comparator.comparingInt(Review::getRating).reversed()
+                        .thenComparing(Review::getId, Comparator.reverseOrder());
+                break;
+
+            case "rating_asc":
+                cmp = Comparator.comparingInt(Review::getRating)
+                        .thenComparing(Review::getId);
+                break;
+
+            case "similarity":
+                if (baseUserId == null) {
+                    return ResponseEntity.badRequest().build();
+                }
+                var baseUserOpt = userRepository.findById(baseUserId);
+                if (baseUserOpt.isEmpty()) {
+                    return ResponseEntity.badRequest().build();
+                }
+                User baseUser = baseUserOpt.get();
+
+                cmp = (r1, r2) -> Double.compare(
+                        r2.getAuthor().getSimilarity(baseUser),
+                        r1.getAuthor().getSimilarity(baseUser)
+                );
+                break;
+
+            case "newest":
+            default:
+                cmp = Comparator.comparing(Review::getId).reversed();
+                break;
+        }
+
+        //Sort and return
+        Set<Review> sortedSet = new LinkedHashSet<>(
+                stream.sorted(cmp).collect(Collectors.toList())
+        );
+        return ResponseEntity.ok(sortedSet);
     }
 
     @PostMapping

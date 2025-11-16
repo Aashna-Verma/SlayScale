@@ -26,6 +26,22 @@
 <!-- Product list -->
 <section>
     <h2 class="text-4xl font-bold my-6">All Products</h2>
+    <!-- Filter by category -->
+    <form th:action="@{/SlayScale/products}" method="get" class="mb-4">
+        <label for="categoryFilter" class="mr-2 font-semibold">Filter by category:</label>
+        <select id="categoryFilter"
+                name="category"
+                onchange="this.form.submit()"
+                class="border border-pink-400 rounded-full px-3 py-1">
+
+        <option value="">All</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.name()}"
+                    th:text="${cat.name()}"
+                    th:selected="${selectedCategory == cat.name()}">
+            </option>
+        </select>
+    </form>
     <div th:if="${#lists.isEmpty(products)}" class="muted">No products yet.</div>
 
     <div class="flex flex-wrap gap-2">
@@ -41,7 +57,7 @@
 </section>
 
 <!-- Add product form -->
-<form class="add-product" th:action="@{/SlayScale/products}" method="post">
+<form class="form add-product" th:action="@{/SlayScale/products}" method="post">
     <h3>Add a Product</h3>
 
     <!-- Alerts -->

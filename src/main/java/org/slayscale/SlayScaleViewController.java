@@ -37,7 +37,9 @@ public class SlayScaleViewController {
     }
 
     @PostMapping("/signup")
-    public String performSignup(@RequestParam("username") String username, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String performSignup(@RequestParam("username") String username,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
         try {
             Map<String, String> body = Map.of("username", username.trim());
             ResponseEntity<User> response = userController.createUser(body);
@@ -56,14 +58,17 @@ public class SlayScaleViewController {
     }
 
     @GetMapping("/products")
-    public String productsPage(@RequestParam(value = "error", required = false) String error,
+    public String productsPage(@RequestParam(value = "category", required = false) String category,
+                               @RequestParam(value = "error", required = false) String error,
                                @RequestParam(value = "success", required = false) String success,
                                Model model) {
-        List<Product> products = productController.listProducts("");
+
+        List<Product> products = productController.listProducts(category);
+
         model.addAttribute("products", products);
         model.addAttribute("categories", Category.values());
+        model.addAttribute("selectedCategory", category);
 
-        // set active tab so the template can highlight it
         model.addAttribute("activeTab", "products");
         if (error != null) model.addAttribute("error", error);
         if (success != null) model.addAttribute("success", success);
@@ -98,18 +103,35 @@ public class SlayScaleViewController {
 
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,
-                                @SessionAttribute(value = "currentUserId", required = false)
+                                @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
+                                @RequestParam(value = "minRating", required = false) Integer minRating,
                                 @RequestParam(value = "error", required = false) String error,
                                 @RequestParam(value = "success", required = false) String success,
+                                @SessionAttribute(value = "currentUserId", required = false) Long currentUserId,
                                 Model model) {
+
 
         Product product = productController.getProduct(id);
         model.addAttribute("product", product);
+        model.addAttribute("sort", sort);
+        model.addAttribute("minRating", minRating);
 
-        ResponseEntity<Set<Review>> reviewsResp = productController.getProductReviews(id);
+// If user is not logged in but similarity is selected, fall back to newest
+        String effectiveSort = sort;
+        if ("similarity".equalsIgnoreCase(sort) && currentUserId == null) {
+            effectiveSort = "newest";
+        }
 
-        Set<Review> reviews = reviewsResp != null && reviewsResp.getBody() != null ? reviewsResp.getBody() : Set.of();
+        ResponseEntity<Set<Review>> reviewsResp =
+                productController.getProductReviews(id, effectiveSort, minRating, currentUserId);
+
+        Set<Review> reviews = (reviewsResp != null && reviewsResp.getBody() != null)
+                ? reviewsResp.getBody()
+                : Set.of();
         model.addAttribute("reviews", reviews);
+
+        model.addAttribute("sort", sort);
+        model.addAttribute("minRating", minRating);
 
         if (error != null) model.addAttribute("error", error);
         if (success != null) model.addAttribute("success", success);
@@ -158,7 +180,7 @@ public class SlayScaleViewController {
         var users = resp.getBody() != null ? resp.getBody() : List.<User>of();
 
         model.addAttribute("users", users);
-        model.addAttribute("sortStrategy", sortStrategy.name()); // so the <select> can show the current choice
+        model.addAttribute("sortStrategy", sortStrategy.name());
         model.addAttribute("activeTab", "users");
 
         return "users";
