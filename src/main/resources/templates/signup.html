@@ -12,11 +12,12 @@
 
     <div class="error" th:if="${error}" th:text="${error}"></div>
 
-    <label for="email">Username</label>
-    <input id="email" name="email" type="email" placeholder="Enter an email" />
-
     <label for="username">Username</label>
     <input id="username" name="username" type="text" placeholder="Enter a username" />
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" placeholder="Enter an email" />
+
 
     <div class="rules error" th:if="${error}">
         <ul>

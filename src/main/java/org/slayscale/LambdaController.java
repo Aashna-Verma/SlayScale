@@ -19,9 +19,8 @@ public class LambdaController {
 
     @Async
     @GetMapping("/sendEmail")
-    public ResponseEntity<String> lambdaEmail() {
+    public ResponseEntity<String> lambdaEmail(String email) {
         try {
-            String email = "amilesh2003@gmail.com"; // TODO: Replace with email variable
             String response = lambdaService.sendEmail(email);
             return ResponseEntity.ok("Lambda response: " + response);
         } catch (Exception e) {

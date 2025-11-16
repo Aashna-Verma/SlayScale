@@ -49,7 +49,7 @@ public class SlayScaleViewController {
             body.put("email", email.trim());
 
             ResponseEntity<User> response = userController.createUser(body);
-            ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail();
+            ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail(email.trim());
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
