@@ -2,12 +2,13 @@ package org.slayscale;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/seeddata")
+@RequestMapping("/api")
 public class LambdaController {
 
     private final LambdaService lambdaService;
@@ -16,10 +17,12 @@ public class LambdaController {
         this.lambdaService  = lambdaService ;
     }
 
-    @GetMapping("/")
-    public ResponseEntity<String> Lambda() {
+    @Async
+    @GetMapping("/sendEmail")
+    public ResponseEntity<String> lambdaEmail() {
         try {
-            String response = lambdaService.seedData();
+            String email = "amilesh2003@gmail.com"; // TODO: Replace with email variable
+            String response = lambdaService.sendEmail(email);
             return ResponseEntity.ok("Lambda response: " + response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

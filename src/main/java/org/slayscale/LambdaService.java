@@ -15,8 +15,9 @@ public class LambdaService {
         this.lambdaClient = lambdaClient;
     }
 
-    public String seedData() {
-        String payload = "";
+    public String sendEmail(String email) {
+        String payload = String.format("{\"email\": \"%s\"}", email);
+
         InvokeRequest request = InvokeRequest.builder()
                 .functionName("hellojava")  // Lambda name
                 .payload(SdkBytes.fromUtf8String(payload))

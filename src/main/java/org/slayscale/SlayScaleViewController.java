@@ -1,6 +1,7 @@
 package org.slayscale;
 
 import jakarta.servlet.http.HttpSession;
+import org.apache.coyote.Response;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,6 +44,7 @@ public class SlayScaleViewController {
         try {
             Map<String, String> body = Map.of("username", username.trim());
             ResponseEntity<User> response = userController.createUser(body);
+            ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail();
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
@@ -200,16 +202,5 @@ public class SlayScaleViewController {
             userController.followUser(currentUserId, id);
 
         return "redirect:/SlayScale/users/{id}";
-    }
-
-    @GetMapping("/seeddata")
-    public String seedDataPage(){
-        return "seeddata";
-    }
-
-    @PostMapping("/seeddata")
-    public String seedData(){
-        lambdaController.Lambda();
-        return "redirect:/SlayScale/products";
     }
 }
