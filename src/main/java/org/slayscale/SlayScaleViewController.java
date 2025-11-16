@@ -199,4 +199,9 @@ public class SlayScaleViewController {
 
         return "redirect:/SlayScale/users/{id}";
     }
+
+    @GetMapping("/seeddata")
+    public String seedDataPage(){
+        return "seeddata";
+    }
 }
