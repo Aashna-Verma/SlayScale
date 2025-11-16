@@ -42,16 +42,16 @@ public class UserControllerTest {
     @BeforeEach
     void setup() {
         // Mock users
-        user1 = new User("Alice");
+        user1 = new User("alice@gmail.com","Alice");
         user1.setId(1L);
 
-        user2 = new User("Bob");
+        user2 = new User("bob@gmail.com", "Bob");
         user2.setId(2L);
 
-        user3 = new User("Charlie");
+        user3 = new User("Charlie@gmail.com", "Charlie");
         user3.setId(3L);
 
-        user4 = new User("Don");
+        user4 = new User("Don@gmail.com", "Don");
         user4.setId(4L);
 
         // Mock products
@@ -103,20 +103,23 @@ public class UserControllerTest {
 
     @Test
     void testCreateUserSuccess() throws Exception {
-        Map<String, String> body = Map.of("username", "Charlie");
+        Map<String, String> body = Map.of("email", "charlie@gmail.com","username", "Charlie");
+        when(userRepository.findByEmail("charlie@gmail.com")).thenReturn(Optional.empty());
         when(userRepository.findByUsername("Charlie")).thenReturn(Optional.empty());
-        User savedUser = new User("Charlie");
+        User savedUser = new User("charlie@gmail.com", "Charlie");
         savedUser.setId(3L);
         when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class))).thenReturn(savedUser);
         mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(body)))
                 .andExpect(status().isCreated()) // endpoint returns 201
                 .andExpect(jsonPath("$.id", is(3)))
+                .andExpect(jsonPath("$.email", is("charlie@gmail.com")))
                 .andExpect(jsonPath("$.username", is("Charlie")));
     }
 
     @Test
     void testCreateUserFailDuplicate() throws Exception {
-        Map<String, String> body = Map.of("username", "Alice");
+        Map<String, String> body = Map.of("email", "alice@gmail.com", "username", "Alice");
+        when(userRepository.findByEmail("alice@gmail.com")).thenReturn(Optional.of(user1));
         when(userRepository.findByUsername("Alice")).thenReturn(Optional.of(user1));
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)

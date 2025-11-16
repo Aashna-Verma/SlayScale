@@ -76,8 +76,14 @@ public class UserController {
         if (username == null || username.isBlank() || userRepository.findByUsername(username).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
+
+        String email = body.get("email");
+        if (email == null || email.isBlank() || userRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         try {
-            User user = new User(username);
+            User user = new User(email, username);
             return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(user));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(null);
