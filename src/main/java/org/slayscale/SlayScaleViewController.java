@@ -19,10 +19,12 @@ import java.util.Set;
 public class SlayScaleViewController {
     private final UserController userController;
     private final ProductController productController;
+    private final LambdaController lambdaController;
 
-    public SlayScaleViewController(UserController userController, ProductController productController) {
+    public SlayScaleViewController(UserController userController, ProductController productController, LambdaController lambdaController) {
         this.userController = userController;
         this.productController = productController;
+        this.lambdaController = lambdaController;
     }
 
     @ModelAttribute("currentUserId")
@@ -203,5 +205,11 @@ public class SlayScaleViewController {
     @GetMapping("/seeddata")
     public String seedDataPage(){
         return "seeddata";
+    }
+
+    @PostMapping("/seeddata")
+    public String seedData(){
+        lambdaController.Lambda();
+        return "products";
     }
 }

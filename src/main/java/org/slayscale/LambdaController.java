@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test")
-public class LambdaTestController {
+@RequestMapping("/api/seeddata")
+public class LambdaController {
 
     private final LambdaService lambdaService;
 
-    public LambdaTestController(LambdaService  lambdaService ) {
+    public LambdaController(LambdaService  lambdaService ) {
         this.lambdaService  = lambdaService ;
     }
 
-    @GetMapping("/lambda")
-    public ResponseEntity<String> testLambda() {
+    @GetMapping("/")
+    public ResponseEntity<String> Lambda() {
         try {
             String response = lambdaService.seedData();
             return ResponseEntity.ok("Lambda response: " + response);
