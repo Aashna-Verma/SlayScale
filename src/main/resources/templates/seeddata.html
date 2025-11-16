@@ -10,7 +10,9 @@
 </head>
 <body class="h-screen flex justify-center items-center">
 
-<div class="btn !w-96">SEED DATA</div>
+<form th:action="@{|/SlayScale/seeddata|}" method="post">
+    <button type="submit" class="uppercase btn">Seed Data</button>
+</form>
 
 </body>
 </html>

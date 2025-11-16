@@ -210,6 +210,6 @@ public class SlayScaleViewController {
     @PostMapping("/seeddata")
     public String seedData(){
         lambdaController.Lambda();
-        return "products";
+        return "redirect:/SlayScale/products";
     }
 }
