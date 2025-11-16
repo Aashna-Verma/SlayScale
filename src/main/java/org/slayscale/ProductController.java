@@ -17,59 +17,84 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
 
-    public ProductController(ProductRepository repo) {
+    public ProductController(ProductRepository repo, UserRepository userRepository) {
         this.productRepository = repo;
+        this.userRepository = userRepository;
     }
 
     public ResponseEntity<Set<Review>> getProductReviews(Long id) {
-        return getProductReviews(id, "newest", 0);
+        return getProductReviews(id, "newest", 0, null);
     }
 
     @GetMapping("/{id}/reviews")
     public ResponseEntity<Set<Review>> getProductReviews(
             @PathVariable Long id,
             @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
-            @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating) {
+            @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating,
+            @RequestParam(value = "baseUserId", required = false) Long baseUserId) {
 
-        return productRepository.findById(id)
-                .map(product -> {
-                    Set<Review> reviewsSet = product.getReviews();
-                    if (reviewsSet == null) {
-                        reviewsSet = Set.of();
-                    }
+        //Find product or return 404
+        Optional<Product> productOpt = productRepository.findById(id);
+        if (productOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
-                    // Filter by minimum rating
-                    var filtered = reviewsSet.stream()
-                            .filter(r -> r.getRating() >= (minRating == null ? 0 : minRating));
+        Product product = productOpt.get();
+        Set<Review> reviewsSet = product.getReviews();
+        if (reviewsSet == null) {
+            reviewsSet = Set.of();
+        }
 
-                    final String sortOption = (sort == null ? "newest" : sort);
+        var stream = reviewsSet.stream()
+                .filter(r -> r.getRating() >= (minRating == null ? 0 : minRating));
 
-                    Comparator<Review> cmp;
-                    switch (sortOption) {
-                        case "oldest":
-                            cmp = Comparator.comparing(Review::getId);
-                            break;
-                        case "rating_desc":
-                            cmp = Comparator.comparingInt(Review::getRating).reversed()
-                                    .thenComparing(Review::getId, Comparator.reverseOrder());
-                            break;
-                        case "rating_asc":
-                            cmp = Comparator.comparingInt(Review::getRating)
-                                    .thenComparing(Review::getId);
-                            break;
-                        case "newest":
-                        default:
-                            cmp = Comparator.comparing(Review::getId).reversed();
-                            break;
-                    }
+        String sortOption = (sort == null ? "newest" : sort.toLowerCase());
 
-                    var sortedList = filtered.sorted(cmp).collect(Collectors.toList());
-                    Set<Review> sortedSet = new LinkedHashSet<>(sortedList);
+        Comparator<Review> cmp;
+        switch (sortOption) {
+            case "oldest":
+                cmp = Comparator.comparing(Review::getId);
+                break;
 
-                    return ResponseEntity.ok(sortedSet);
-                })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+            case "rating_desc":
+                cmp = Comparator.comparingInt(Review::getRating).reversed()
+                        .thenComparing(Review::getId, Comparator.reverseOrder());
+                break;
+
+            case "rating_asc":
+                cmp = Comparator.comparingInt(Review::getRating)
+                        .thenComparing(Review::getId);
+                break;
+
+            case "similarity":
+                if (baseUserId == null) {
+                    return ResponseEntity.badRequest().build();
+                }
+                var baseUserOpt = userRepository.findById(baseUserId);
+                if (baseUserOpt.isEmpty()) {
+                    return ResponseEntity.badRequest().build();
+                }
+                User baseUser = baseUserOpt.get();
+
+                cmp = (r1, r2) -> Double.compare(
+                        r2.getAuthor().getSimilarity(baseUser),
+                        r1.getAuthor().getSimilarity(baseUser)
+                );
+                break;
+
+            case "newest":
+            default:
+                cmp = Comparator.comparing(Review::getId).reversed();
+                break;
+        }
+
+        //Sort and return
+        Set<Review> sortedSet = new LinkedHashSet<>(
+                stream.sorted(cmp).collect(Collectors.toList())
+        );
+        return ResponseEntity.ok(sortedSet);
     }
 
     @PostMapping

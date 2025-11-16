@@ -20,18 +20,21 @@ class ProductControllerAssertTests {
     @Autowired
     ProductRepository repo;
 
+    @Autowired
+    UserRepository userRepository;
+
     private ProductController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ProductController(repo);
+        controller = new ProductController(repo, userRepository);
     }
 
     @AfterEach
     void clean() { repo.deleteAll(); }
 
     private ProductController controller() {
-        return new ProductController(repo);
+        return new ProductController(repo, userRepository);
     }
 
     private Product createProduct(ProductController controller, String url, String category) {
