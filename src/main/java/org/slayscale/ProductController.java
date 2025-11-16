@@ -35,7 +35,6 @@ public class ProductController {
             @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating,
             @RequestParam(value = "baseUserId", required = false) Long baseUserId) {
 
-        //Find product or return 404
         Optional<Product> productOpt = productRepository.findById(id);
         if (productOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
