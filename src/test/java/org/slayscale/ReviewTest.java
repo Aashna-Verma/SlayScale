@@ -13,7 +13,7 @@ class ReviewTest {
 
     @BeforeEach
     public void setUp() {
-        user = new User("Jian_Yang");
+        user = new User("jianyang@piedpiper.com", "Jian_Yang");
         product = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
         review = new Review(user, 3, "Good product",product);
     }
@@ -37,7 +37,7 @@ class ReviewTest {
 
     @Test
     void setAuthor() {
-        User user2 = new User("Eric_Bachman");
+        User user2 = new User("ericbachman@piedpiper.com", "Eric_Bachman");
         review.setAuthor(user2);
         assertEquals(user2, review.getAuthor());
 
