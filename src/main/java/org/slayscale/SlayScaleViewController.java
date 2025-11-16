@@ -40,9 +40,14 @@ public class SlayScaleViewController {
     }
 
     @PostMapping("/signup")
-    public String performSignup(@RequestParam("username") String username, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String performSignup(@RequestParam("username") String username,
+                                @RequestParam("email") String email,
+                                HttpSession session, RedirectAttributes redirectAttributes) {
         try {
-            Map<String, String> body = Map.of("username", username.trim());
+            Map<String, String> body = new HashMap<>();
+            body.put("username", username.trim());
+            body.put("email", email.trim());
+
             ResponseEntity<User> response = userController.createUser(body);
             ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail();
 
@@ -50,7 +55,7 @@ public class SlayScaleViewController {
                 session.setAttribute("currentUserId", response.getBody().getId());
                 return "redirect:/SlayScale/products";
             } else {
-                redirectAttributes.addAttribute("error", "That username is already taken or invalid.");
+                redirectAttributes.addAttribute("error", "That email or username is already taken or invalid.");
                 return "redirect:/SlayScale/signup";
             }
         } catch (Exception e) {
