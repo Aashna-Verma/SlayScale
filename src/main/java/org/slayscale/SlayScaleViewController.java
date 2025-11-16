@@ -175,4 +175,9 @@ public class SlayScaleViewController {
 
         return "user-detail";
     }
+
+    @GetMapping("/seeddata")
+    public String seedDataPage(){
+        return "seeddata";
+    }
 }
