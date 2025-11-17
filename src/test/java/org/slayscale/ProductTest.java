@@ -13,7 +13,7 @@ public class ProductTest {
     @BeforeEach
     public void setUp() {
         product = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
-        user = new User("rajesh");
+        user = new User("rajesh@gmail.com", "rajesh");
         review = new Review(user, 4, "vhat a beautiful sign", product);
     }
 

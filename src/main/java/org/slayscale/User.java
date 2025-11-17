@@ -15,6 +15,9 @@ public class User {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(unique = true, nullable = false)
     private String username;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -40,7 +43,8 @@ public class User {
 
     protected User() {}
 
-    public User(String username) {
+    public User(String email, String username) {
+        setEmail(email);
         setUsername(username);
         this.reviews = new HashSet<>();
         this.followers = new HashSet<>();
@@ -89,6 +93,29 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(String email) {
+        if (email == null) throw new IllegalArgumentException("email cannot be null.");
+
+        // Standard, safe email regex (no spaces, must have @ and .something)
+        String regex =
+                "^(?![.-])"               // local part cannot start with . or -
+                + "(?!.*\\.\\.)"            // no consecutive dots in local part
+                + "[A-Za-z0-9._%+-]+"       // allowed characters in local part
+                + "(?<!\\.)"                // local part cannot end with dot
+                + "@"
+                + "[A-Za-z0-9]"             // domain must start with alphanumeric
+                + "[A-Za-z0-9.-]*"          // allowed domain characters
+                + "(?<![.-])"               // domain cannot end with . or -
+                + "\\.[A-Za-z]{2,}$";       // TLD
+        if (!email.matches(regex)) throw new IllegalArgumentException("Invalid email format.");
+
+        this.email = email;
     }
 
     public String getUsername() {

@@ -1,6 +1,7 @@
 package org.slayscale;
 
 import jakarta.servlet.http.HttpSession;
+import org.apache.coyote.Response;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +20,12 @@ import java.util.Set;
 public class SlayScaleViewController {
     private final UserController userController;
     private final ProductController productController;
+    private final LambdaController lambdaController;
 
-    public SlayScaleViewController(UserController userController, ProductController productController) {
+    public SlayScaleViewController(UserController userController, ProductController productController, LambdaController lambdaController) {
         this.userController = userController;
         this.productController = productController;
+        this.lambdaController = lambdaController;
     }
 
     @ModelAttribute("currentUserId")
@@ -37,21 +40,22 @@ public class SlayScaleViewController {
     }
 
     @PostMapping("/signup")
-    public String performSignup(
-            @RequestParam("username") String username,
-            @RequestParam("email") String email,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-
+    public String performSignup(@RequestParam("username") String username,
+                                @RequestParam("email") String email,
+                                HttpSession session, RedirectAttributes redirectAttributes) {
         try {
-            Map<String, String> body = Map.of("username", username.trim());
+            Map<String, String> body = new HashMap<>();
+            body.put("username", username.trim());
+            body.put("email", email.trim());
+
             ResponseEntity<User> response = userController.createUser(body);
+            ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail(email.trim());
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
                 return "redirect:/SlayScale/products";
             } else {
-                redirectAttributes.addAttribute("error", "That username is already taken or invalid.");
+                redirectAttributes.addAttribute("error", "That email or username is already taken or invalid.");
                 return "redirect:/SlayScale/signup";
             }
         } catch (Exception e) {
@@ -190,14 +194,38 @@ public class SlayScaleViewController {
     }
 
     @GetMapping("/users/{id}")
-    public String specificUserPage(@PathVariable Long id ,
-                                   Model model) {
+    public String specificUserPage( @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
+                                    @PathVariable Long id,
+                                    Model model) {
 
         User user = userController.getUserById(id).getBody();
+        User currentUser = userController.getUserById(currentUserId).getBody();
         Set<Review> reviews = userController.getReviews(id).getBody();
+
+        boolean isSelf = user.getId().equals(currentUserId);
+        boolean isFollowing = currentUser.getFollowing().contains(user);
+
+        model.addAttribute("isSelf", isSelf);
+        model.addAttribute("isFollowing", isFollowing);
         model.addAttribute("user", user);
         model.addAttribute("reviews", reviews);
 
         return "user-detail";
+    }
+
+    @PostMapping("/user/follow/{id}")
+    public String toggleFollow(
+            @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
+            @PathVariable Long id) {
+
+        User user = userController.getUserById(id).getBody();
+        User currentUser = userController.getUserById(currentUserId).getBody();
+
+        if (currentUser.getFollowing().contains(user))
+            userController.unfollowUser(currentUserId, id);
+        else
+            userController.followUser(currentUserId, id);
+
+        return "redirect:/SlayScale/users/{id}";
     }
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Products</title>
+    <title th:text="'User ' + ${user.id}">User</title>
     <link rel="stylesheet" th:href="@{/global.css}" />
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -26,6 +26,14 @@
 <!-- Users list -->
 <section>
     <h2 class="text-4xl font-bold my-6" >@<span th:text="${user.getUsername()}">username</span></h2>
+
+    <form th:if="${!isSelf}" th:action="@{|/SlayScale/user/follow/${user.id}|}" method="post">
+        <button type="submit"
+                class="uppercase btn"
+                th:text="${isFollowing} ? 'Unfollow' : 'Follow'">
+            Follow
+        </button>
+    </form>
 
     <div class="flex flex-wrap gap-2">
         <a th:each="r : ${reviews}"
