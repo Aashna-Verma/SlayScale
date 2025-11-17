@@ -42,7 +42,7 @@ public class ProductController {
             reviewsSet = Set.of();
         }
 
-        int effectiveMin = (minRating == null ? Review.MIN_RATING : minRating);
+        int effectiveMin = minRating;
         if (effectiveMin < Review.MIN_RATING || effectiveMin > Review.MAX_RATING) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
