@@ -1,6 +1,7 @@
 package org.slayscale;
 
 import jakarta.servlet.http.HttpSession;
+import org.apache.coyote.Response;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +20,12 @@ import java.util.Set;
 public class SlayScaleViewController {
     private final UserController userController;
     private final ProductController productController;
+    private final LambdaController lambdaController;
 
-    public SlayScaleViewController(UserController userController, ProductController productController) {
+    public SlayScaleViewController(UserController userController, ProductController productController, LambdaController lambdaController) {
         this.userController = userController;
         this.productController = productController;
+        this.lambdaController = lambdaController;
     }
 
     @ModelAttribute("currentUserId")
@@ -46,6 +49,7 @@ public class SlayScaleViewController {
             body.put("email", email.trim());
 
             ResponseEntity<User> response = userController.createUser(body);
+            ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail(email.trim());
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
