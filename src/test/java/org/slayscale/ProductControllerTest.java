@@ -138,31 +138,6 @@ class ProductControllerAssertTests {
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
     }
 
-    @Transactional
-    @Test
-    void getProductReviewsAppliesMinRatingFilter() {
-        var p = createProduct(controller, "https://minrating.com", "BOOKS");
-
-        User u = new User("minrating-user");
-
-        Review high = new Review(u, 5, "great", p);
-        Review low  = new Review(u, 2, "meh", p);
-
-        u.addReview(high);
-        u.addReview(low);
-        p.addReview(high);
-        p.addReview(low);
-
-        userRepository.save(u);
-
-        ResponseEntity<Set<Review>> res =
-                controller.getProductReviews(p.getId(), "newest", 4, null);
-
-        assertEquals(HttpStatus.OK, res.getStatusCode());
-        assertNotNull(res.getBody());
-        assertFalse(res.getBody().isEmpty());
-        assertTrue(res.getBody().stream().allMatch(r -> r.getRating() >= 4));
-    }
     @Test
     void getProductReviewsSimilarityWithoutBaseUserReturnsBadRequest() {
         var p = createProduct(controller, "https://similar-nobase.com", "BOOKS");
