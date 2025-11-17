@@ -111,7 +111,7 @@ public class SlayScaleViewController {
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,
                                 @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort,
-                                @RequestParam(value = "minRating", required = false) Integer minRating,
+                                @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating,
                                 @RequestParam(value = "error", required = false) String error,
                                 @RequestParam(value = "success", required = false) String success,
                                 @SessionAttribute(value = "currentUserId", required = false) Long currentUserId,
