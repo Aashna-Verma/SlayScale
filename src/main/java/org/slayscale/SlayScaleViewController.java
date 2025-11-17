@@ -37,9 +37,12 @@ public class SlayScaleViewController {
     }
 
     @PostMapping("/signup")
-    public String performSignup(@RequestParam("username") String username,
-                                HttpSession session,
-                                RedirectAttributes redirectAttributes) {
+    public String performSignup(
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
         try {
             Map<String, String> body = Map.of("username", username.trim());
             ResponseEntity<User> response = userController.createUser(body);
