@@ -29,6 +29,7 @@ Each product is identified by its online listing link and categorized by type. U
 - Added helper utilities for statistical computations
 - Implemented Jaccard Distance similarity between users based on shared reviewed products
 - Added AWS Lambda integration for:
+  - Backend services to invoke Lambda functions
   - Notifying a user login via email
   - Environment variable management
   - Updating project dependencies
@@ -39,6 +40,7 @@ Each product is identified by its online listing link and categorized by type. U
 ## Next Sprint Plan
 - Implement a sign-in form for existing users to login
 - Implement an SPA to support the client-side
+- Completing final refinements and refactoring across the entire codebase
 
 ## Database Schema
 ![database-schema.png](diagrams/database-schema.png)
