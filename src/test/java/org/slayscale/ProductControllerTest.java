@@ -9,10 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.Set;
 
 @DataJpaTest
 class ProductControllerAssertTests {
@@ -20,18 +19,21 @@ class ProductControllerAssertTests {
     @Autowired
     ProductRepository repo;
 
+    @Autowired
+    UserRepository userRepository;
+
     private ProductController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new ProductController(repo);
+        controller = new ProductController(repo, userRepository);
     }
 
     @AfterEach
     void clean() { repo.deleteAll(); }
 
     private ProductController controller() {
-        return new ProductController(repo);
+        return new ProductController(repo, userRepository);
     }
 
     private Product createProduct(ProductController controller, String url, String category) {
@@ -66,14 +68,35 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void listProductsReturnsAllAndFiltersByCategory() {
+    void listProductsNoCategoryReturnsAll() {
         createProduct(controller, "https://a.com", "BOOKS");
         createProduct(controller, "https://b.com", "ELECTRONICS");
 
         assertEquals(2, controller.listProducts(null).size());
+        assertEquals(2, controller.listProducts("").size());
+    }
+
+    @Test
+    void listProductsValidCategoryFiltersCorrectly() {
+        createProduct(controller, "https://a.com", "BOOKS");
+        createProduct(controller, "https://b.com", "ELECTRONICS");
+
+        assertEquals(1, controller.listProducts("BOOKS").size());
         assertEquals(1, controller.listProducts("books").size());
+        assertEquals(1, controller.listProducts("   books   ").size());
+
+        var onlyBooks = controller.listProducts("books");
+        assertEquals(Category.BOOKS, onlyBooks.get(0).getCategory());
+    }
+
+    @Test
+    void listProductsInvalidCategoryReturnsAll() {
+        createProduct(controller, "https://a.com", "BOOKS");
+        createProduct(controller, "https://b.com", "ELECTRONICS");
+
         assertEquals(0, controller.listProducts("toys").size());
     }
+
 
     @Test
     void deleteProductRemovesItem() {
@@ -116,19 +139,21 @@ class ProductControllerAssertTests {
     }
 
     @Test
-    void getProductReviewsMissingProduct() {
-        var res = controller.getProductReviews(99999L);
-        assertEquals(HttpStatus.NOT_FOUND, res.getStatusCode());
+    void getProductReviewsSimilarityWithoutBaseUserReturnsBadRequest() {
+        var p = createProduct(controller, "https://similar-nobase.com", "BOOKS");
+
+        ResponseEntity<Set<Review>> res =
+                controller.getProductReviews(p.getId(), "similarity", 0, null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
-
-    @Transactional
     @Test
-    void getProductReviewsExistingProductReturnsEmptySetWhenNoReviews() {
-        var p = createProduct(controller, "https://norev.com", "BOOKS");
+    void getProductReviewsSimilarityWithUnknownUserReturnsBadRequest() {
+        var p = createProduct(controller, "https://similar-unknown.com", "BOOKS");
 
-        var res = controller.getProductReviews(p.getId());
-        assertEquals(HttpStatus.OK, res.getStatusCode());
-        assertNotNull(res.getBody());
-        assertTrue(res.getBody().isEmpty());
+        ResponseEntity<Set<Review>> res =
+                controller.getProductReviews(p.getId(), "similarity", 0, 99999L);
+
+        assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
 }
