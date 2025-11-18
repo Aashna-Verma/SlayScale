@@ -42,13 +42,12 @@ public class ProductController {
             reviewsSet = Set.of();
         }
 
-        int effectiveMin = minRating;
-        if (effectiveMin < Review.MIN_RATING || effectiveMin > Review.MAX_RATING) {
+        if (minRating < Review.MIN_RATING || minRating > Review.MAX_RATING) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         var stream = reviewsSet.stream()
-                .filter(r -> r.getRating() >= effectiveMin);
+                .filter(r -> r.getRating() >= minRating);
 
         String sortOption = sort.toLowerCase();
         Comparator<Review> cmp;
