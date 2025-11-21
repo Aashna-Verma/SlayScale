@@ -17,6 +17,34 @@ public class UserTest {
     }
 
     @Test
+    void getConnectionDegree() {
+        User u2 = new User("gilfoyle@piedpiper.com", "Gilfoyle");
+        User u3 = new User("erlichbachman@piedpiper.com", "Erlich_Bachman");
+        User u4 = new User("bighead@piedpiper.com", "Big_Head");
+        User u5 = new User("jareddunn@piedpiper.com", "Jared_Dunn");
+
+        assertEquals(0, u1.getConnectionDegree(u1));
+        assertEquals(-1, u1.getConnectionDegree(u2));
+        assertEquals(-1, u2.getConnectionDegree(u1));
+
+        u2.follow(u1); // u2 -> u1
+        assertEquals(-1, u1.getConnectionDegree(u2));
+        assertEquals(1, u2.getConnectionDegree(u1));
+
+        u1.follow(u3); // u2 -> u1 -> u3
+        assertEquals(1, u1.getConnectionDegree(u3));
+        assertEquals(-1, u3.getConnectionDegree(u1));
+
+        u3.follow(u4); // u2 -> u1 -> u3 -> u4
+        assertEquals(2, u1.getConnectionDegree(u4));
+        assertEquals(-1, u4.getConnectionDegree(u1));
+
+        u4.follow(u5); // u2 -> u1 -> u3 -> u4 -> u5
+        assertEquals(3, u1.getConnectionDegree(u5));
+        assertEquals(-1, u5.getConnectionDegree(u1));
+    }
+
+    @Test
     void getSimilarity() {
         Product p1 = new Product(Category.BOOKS, "https://a.co/d/emAuUNh");
         Product p2 = new Product(Category.BOOKS, "https://a.co/d/fJIJBiG");
