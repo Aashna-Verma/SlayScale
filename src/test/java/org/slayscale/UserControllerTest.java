@@ -75,6 +75,41 @@ public class UserControllerTest {
         when(userRepository.findById(3L)).thenReturn(Optional.of(user3));
         when(userRepository.findById(4L)).thenReturn(Optional.of(user4));
     }
+
+    @Test
+    void testGetConnectionDegree() throws Exception {
+        mockMvc.perform(get("/api/users/1/connection/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.degree").value(0));
+
+        user1.follow(user2);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user1));
+        mockMvc.perform(get("/api/users/1/connection/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.degree").value(1));
+
+        user2.follow(user3);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        mockMvc.perform(get("/api/users/1/connection/3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.degree").value(2));
+
+        user3.follow(user4);
+        when(userRepository.findById(3L)).thenReturn(Optional.of(user3));
+        mockMvc.perform(get("/api/users/1/connection/4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.degree").value(3));
+
+        User user5 = new User("ravman@gmail.com", "Ravi");
+        when(userRepository.findById(5L)).thenReturn(Optional.of(user5));
+        mockMvc.perform(get("/api/users/1/connection/5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.degree").value(-1));
+
+        when(userRepository.findById(67L)).thenReturn(Optional.empty());
+        mockMvc.perform(get("/api/users/1/connection/67"))
+                .andExpect(status().isNotFound());
+    }
     
     @Test
     void testGetAllUsers() throws Exception {

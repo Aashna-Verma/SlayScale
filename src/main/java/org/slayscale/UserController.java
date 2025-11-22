@@ -120,6 +120,27 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{userId}/connection/{otherUserId}")
+    public ResponseEntity<Map<String, Integer>> getConnectionDegree(
+            @PathVariable Long userId,
+            @PathVariable Long otherUserId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        Optional<User> optionalOtherUser = userRepository.findById(otherUserId);
+        if (optionalUser.isEmpty() || optionalOtherUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = optionalUser.get();
+        User otherUser = optionalOtherUser.get();
+
+        try {
+            return ResponseEntity.ok(Collections.singletonMap(
+                    "degree", user.getConnectionDegree(otherUser)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
     @PostMapping("/{userId}/review")
     public ResponseEntity<Map<String, Object>> createReview(@PathVariable Long userId, @RequestBody Map<String, Object> body) {
         Optional<User> optionalUser = userRepository.findById(userId);

@@ -57,7 +57,7 @@ public class User {
      * Get the degree of connection between this user and another, where
      * user B is a connection of user A if and only if A follows B. The degree
      * of connection can be between -1 (no connection) and 3, inclusive. Note
-     * that a user's degree of connection themself is 0.
+     * that a user's degree of connection themselves is 0.
      *
      * For example, Dennis follows This. This follows Alice. Alice follows
      * Bob. Bob follows Charlie.
