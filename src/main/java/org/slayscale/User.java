@@ -54,6 +54,39 @@ public class User {
     }
 
     /**
+     * Get the degree of connection between this user and another, where
+     * user B is a connection of user A if and only if A follows B. The degree
+     * of connection can be between -1 (no connection) and 3, inclusive. Note
+     * that a user's degree of connection themselves is 0.
+     *
+     * For example, Dennis follows This. This follows Alice. Alice follows
+     * Bob. Bob follows Charlie.
+     *
+     * Dennis (-1) -> This (0) -> Alice (1) -> Bob (2) -> Charlie (3)
+     *
+     * @param other The other user to get this user's degree of connection with.
+     * @return The degree of connection.
+     */
+    public int getConnectionDegree(User other) {
+        if (other == null) throw new IllegalArgumentException("Other user cannot be null.");
+        if (this.equals(other)) return 0;
+
+        if (this.following.contains(other)) return 1;
+
+        for (User firstDegree : this.following) {
+            if (firstDegree.getFollowing().contains(other)) return 2;
+        }
+
+        for (User firstDegree : this.following) {
+            for (User secondDegree : firstDegree.getFollowing()) {
+                if (secondDegree.getFollowing().contains(other)) return 3;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
      * Get the Jaccard similarity between this user and the specified user
      * based on the products they review.
      *
@@ -62,7 +95,7 @@ public class User {
      * 0.0 means completely different, and 1.0 means exactly the same.
      */
     public double getSimilarity(User other) {
-        if (other == null) throw new IllegalArgumentException("User cannot be null.");
+        if (other == null) throw new IllegalArgumentException("Other user cannot be null.");
 
         Set<Product> thisProducts = this.reviews.stream()
                 .map(Review::getProduct)
