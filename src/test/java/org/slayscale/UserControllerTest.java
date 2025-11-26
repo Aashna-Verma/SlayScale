@@ -137,6 +137,21 @@ public class UserControllerTest {
     }
 
     @Test
+    void testGetUserByUsernameFound() throws Exception {
+        when(userRepository.findByUsername("Alice")).thenReturn(Optional.of(user1));
+        mockMvc.perform(get("/api/users/username/Alice"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", is("Alice")));
+    }
+
+    @Test
+    void testGetUserByUsernameNotFound() throws Exception {
+        when(userRepository.findByUsername("Charlie")).thenReturn(Optional.empty());
+        mockMvc.perform(get("/api/users/username/Charlie"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void testCreateUserSuccess() throws Exception {
         Map<String, String> body = Map.of("email", "charlie@gmail.com","username", "Charlie");
         when(userRepository.findByEmail("charlie@gmail.com")).thenReturn(Optional.empty());

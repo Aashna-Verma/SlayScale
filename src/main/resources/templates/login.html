@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>Login</h2>
+
+<!-- display error message -->
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+
+<form action="/SlayScale/login" method="post">
+    <div>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+
+    <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+
+    <button type="submit">Login</button>
+</form>
+
+</body>
+</html>

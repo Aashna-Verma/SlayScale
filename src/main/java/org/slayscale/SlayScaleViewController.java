@@ -52,6 +52,7 @@ public class SlayScaleViewController {
             ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail(email.trim());
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
+                assert response.getBody() != null;
                 session.setAttribute("currentUserId", response.getBody().getId());
                 return "redirect:/SlayScale/products";
             } else {
@@ -63,6 +64,41 @@ public class SlayScaleViewController {
             return "redirect:/SlayScale/signup";
         }
     }
+
+    @GetMapping("/login")
+    public String loginForm(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) model.addAttribute("error", error);
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String performLogin(@RequestParam("username") String username,
+                               @RequestParam("email") String email,
+                               HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            ResponseEntity<User> response = userController.getUserByUsername(username.trim());
+
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                redirectAttributes.addAttribute("error", "Invalid username or email.");
+                return "redirect:/SlayScale/login";
+            }
+
+            User user = response.getBody();
+
+            if (!user.getEmail().equalsIgnoreCase(email.trim())) {
+                redirectAttributes.addAttribute("error", "Invalid username or email.");
+                return "redirect:/SlayScale/login";
+            }
+
+            session.setAttribute("currentUserId", response.getBody().getId());
+            return "redirect:/SlayScale/products";
+
+        } catch (Exception e) {
+            redirectAttributes.addAttribute("error", "Something went wrong, " + e.getMessage());
+            return "redirect:/SlayScale/login";
+        }
+    }
+
 
     @GetMapping("/products")
     public String productsPage(@RequestParam(value = "category", required = false) String category,
