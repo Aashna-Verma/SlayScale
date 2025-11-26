@@ -71,7 +71,7 @@ public class SlayScaleViewController {
         try {
             ResponseEntity<User> response = userController.getUserByUsername(username.trim());
 
-            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
                 redirectAttributes.addAttribute("error", "Invalid username or email.");
                 return "redirect:/SlayScale/login";
             }
@@ -244,16 +244,16 @@ public class SlayScaleViewController {
 
         Long currentUserId = (Long) session.getAttribute("currentUserId");
 
-        User user = userController.getUserById(id).getBody();
-        User currentUser = currentUserId != null ? userController.getUserById(currentUserId).getBody() : null;
+        User queriedUser = userController.getUserById(id).getBody();
+        User currentUser = currentUserId != null ? userController.getUserById(currentUserId).getBody():null;
         Set<Review> reviews = userController.getReviews(id).getBody();
 
-        boolean isSelf = currentUserId != null && Objects.requireNonNull(user).getId().equals(currentUserId);
-        boolean isFollowing = currentUser != null && currentUser.getFollowing().contains(user);
+        boolean isSelf = currentUserId != null && Objects.requireNonNull(queriedUser).getId().equals(currentUserId);
+        boolean isFollowing = currentUser != null && currentUser.getFollowing().contains(queriedUser);
 
         model.addAttribute("isSelf", isSelf);
         model.addAttribute("isFollowing", isFollowing);
-        model.addAttribute("user", user);
+        model.addAttribute("user", queriedUser);
         model.addAttribute("reviews", reviews);
         model.addAttribute("currentUserId", currentUserId);
 
