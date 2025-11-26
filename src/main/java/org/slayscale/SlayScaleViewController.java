@@ -1,7 +1,9 @@
 package org.slayscale;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.coyote.Response;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,14 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping("/SlayScale")
-@SessionAttributes("currentUserId")
 public class SlayScaleViewController {
     private final UserController userController;
     private final ProductController productController;
@@ -26,11 +24,6 @@ public class SlayScaleViewController {
         this.userController = userController;
         this.productController = productController;
         this.lambdaController = lambdaController;
-    }
-
-    @ModelAttribute("currentUserId")
-    public Long currentUserId() {
-        return null;
     }
 
     @GetMapping("/signup")
@@ -49,10 +42,9 @@ public class SlayScaleViewController {
             body.put("email", email.trim());
 
             ResponseEntity<User> response = userController.createUser(body);
-            ResponseEntity<String> lambdaResponse = lambdaController.lambdaEmail(email.trim());
+            lambdaController.lambdaEmail(email.trim());
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
-                assert response.getBody() != null;
                 session.setAttribute("currentUserId", response.getBody().getId());
                 return "redirect:/SlayScale/products";
             } else {
@@ -74,7 +66,8 @@ public class SlayScaleViewController {
     @PostMapping("/login")
     public String performLogin(@RequestParam("username") String username,
                                @RequestParam("email") String email,
-                               HttpSession session, RedirectAttributes redirectAttributes) {
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
         try {
             ResponseEntity<User> response = userController.getUserByUsername(username.trim());
 
@@ -90,29 +83,45 @@ public class SlayScaleViewController {
                 return "redirect:/SlayScale/login";
             }
 
-            session.setAttribute("currentUserId", response.getBody().getId());
+            session.setAttribute("currentUserId", user.getId());
             return "redirect:/SlayScale/products";
 
         } catch (Exception e) {
-            redirectAttributes.addAttribute("error", "Something went wrong, " + e.getMessage());
+            redirectAttributes.addAttribute("error", "Something went wrong: " + e.getMessage());
             return "redirect:/SlayScale/login";
         }
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
+
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        return "redirect:/";
+    }
 
     @GetMapping("/products")
     public String productsPage(@RequestParam(value = "category", required = false) String category,
                                @RequestParam(value = "error", required = false) String error,
                                @RequestParam(value = "success", required = false) String success,
+                               HttpSession session,
                                Model model) {
+
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
 
         List<Product> products = productController.listProducts(category);
 
         model.addAttribute("products", products);
         model.addAttribute("categories", Category.values());
         model.addAttribute("selectedCategory", category);
-
+        model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("activeTab", "products");
+
         if (error != null) model.addAttribute("error", error);
         if (success != null) model.addAttribute("success", success);
 
@@ -150,16 +159,16 @@ public class SlayScaleViewController {
                                 @RequestParam(value = "minRating", required = false, defaultValue = "0") Integer minRating,
                                 @RequestParam(value = "error", required = false) String error,
                                 @RequestParam(value = "success", required = false) String success,
-                                @SessionAttribute(value = "currentUserId", required = false) Long currentUserId,
+                                HttpSession session,
                                 Model model) {
 
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
 
         Product product = productController.getProduct(id);
         model.addAttribute("product", product);
         model.addAttribute("sort", sort);
         model.addAttribute("minRating", minRating);
 
-        // If user is not logged in but similarity is selected, fall back to newest
         String effectiveSort = sort;
         if ("similarity".equalsIgnoreCase(sort) && currentUserId == null) {
             effectiveSort = "newest";
@@ -173,9 +182,6 @@ public class SlayScaleViewController {
                 : Set.of();
         model.addAttribute("reviews", reviews);
 
-        model.addAttribute("sort", sort);
-        model.addAttribute("minRating", minRating);
-
         if (error != null) model.addAttribute("error", error);
         if (success != null) model.addAttribute("success", success);
 
@@ -186,8 +192,9 @@ public class SlayScaleViewController {
     public String createReviewForProduct(@PathVariable Long id,
                                          @RequestParam("rating") Integer rating,
                                          @RequestParam("text") String text,
-                                         @ModelAttribute("currentUserId") Long currentUserId,
+                                         HttpSession session,
                                          RedirectAttributes ra) {
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
         if (currentUserId == null) {
             ra.addAttribute("error", "Please sign up/sign in before posting a review.");
             return "redirect:/SlayScale/signup";
@@ -214,45 +221,51 @@ public class SlayScaleViewController {
     }
 
     @GetMapping("/users")
-    public String usersPage(
-            @RequestParam(defaultValue = "DEFAULT") UserSortStrategy sortStrategy,
-            @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
-            Model model
-    ) {
+    public String usersPage(@RequestParam(defaultValue = "DEFAULT") UserSortStrategy sortStrategy,
+                            HttpSession session,
+                            Model model) {
+
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
         var resp = userController.getAllUsers(sortStrategy, currentUserId);
         var users = resp.getBody() != null ? resp.getBody() : List.<User>of();
 
         model.addAttribute("users", users);
         model.addAttribute("sortStrategy", sortStrategy.name());
         model.addAttribute("activeTab", "users");
+        model.addAttribute("currentUserId", currentUserId);
 
         return "users";
     }
 
     @GetMapping("/users/{id}")
-    public String specificUserPage( @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
-                                    @PathVariable Long id,
-                                    Model model) {
+    public String specificUserPage(@PathVariable Long id,
+                                   HttpSession session,
+                                   Model model) {
+
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
 
         User user = userController.getUserById(id).getBody();
-        User currentUser = userController.getUserById(currentUserId).getBody();
+        User currentUser = currentUserId != null ? userController.getUserById(currentUserId).getBody() : null;
         Set<Review> reviews = userController.getReviews(id).getBody();
 
-        boolean isSelf = user.getId().equals(currentUserId);
-        boolean isFollowing = currentUser.getFollowing().contains(user);
+        boolean isSelf = currentUserId != null && Objects.requireNonNull(user).getId().equals(currentUserId);
+        boolean isFollowing = currentUser != null && currentUser.getFollowing().contains(user);
 
         model.addAttribute("isSelf", isSelf);
         model.addAttribute("isFollowing", isFollowing);
         model.addAttribute("user", user);
         model.addAttribute("reviews", reviews);
+        model.addAttribute("currentUserId", currentUserId);
 
         return "user-detail";
     }
 
     @PostMapping("/user/follow/{id}")
-    public String toggleFollow(
-            @SessionAttribute(name = "currentUserId", required = false) Long currentUserId,
-            @PathVariable Long id) {
+    public String toggleFollow(@PathVariable Long id,
+                               HttpSession session) {
+
+        Long currentUserId = (Long) session.getAttribute("currentUserId");
+        if (currentUserId == null) return "redirect:/SlayScale/login";
 
         User user = userController.getUserById(id).getBody();
         User currentUser = userController.getUserById(currentUserId).getBody();
