@@ -245,7 +245,7 @@ public class SlayScaleViewController {
         Long currentUserId = (Long) session.getAttribute("currentUserId");
 
         User queriedUser = userController.getUserById(id).getBody();
-        User currentUser = currentUserId != null ? userController.getUserById(currentUserId).getBody():null;
+        User currentUser = userController.getUserById(currentUserId).getBody();
         Set<Review> reviews = userController.getReviews(id).getBody();
 
         boolean isSelf = currentUserId != null && Objects.requireNonNull(queriedUser).getId().equals(currentUserId);
