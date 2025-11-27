@@ -287,6 +287,21 @@ public class SlayScaleViewController {
             model.addAttribute("connectionDegree", "");
         }
 
+        ResponseEntity<Map<String, Integer>> degreeResp  = userController.getConnectionDegree(currentUserId,queriedUser.getId());
+        if(degreeResp.getStatusCode() == HttpStatus.OK && degreeResp.getBody() != null &&
+                degreeResp.getBody().get("degree") != -1) {
+            if (degreeResp.getBody().get("degree") == 1) {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "st");
+            } else if (degreeResp.getBody().get("degree") == 2) {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "nd");
+            } else if (degreeResp.getBody().get("degree") == 3) {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "rd");
+            } else {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "th");
+            }
+        } else {
+            model.addAttribute("connectionDegree", "");
+        }
         model.addAttribute("isSelf", isSelf);
         model.addAttribute("isFollowing", isFollowing);
         model.addAttribute("user", queriedUser);
