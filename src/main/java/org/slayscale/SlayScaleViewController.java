@@ -1,7 +1,6 @@
 package org.slayscale;
 
 import jakarta.servlet.http.HttpSession;
-import org.apache.coyote.Response;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -185,10 +184,31 @@ public class SlayScaleViewController {
     ) {
         var resp = userController.getAllUsers(sortStrategy, currentUserId);
         var users = resp.getBody() != null ? resp.getBody() : List.<User>of();
+        Map<Long, String> connectionDegrees = new HashMap<>();
+
+        for (User user : users) {
+            if (currentUserId != null && !user.getId().equals(currentUserId)) {
+                ResponseEntity<Map<String, Integer>> degreeResp = userController.getConnectionDegree(currentUserId,
+                        user.getId());
+                if (degreeResp.getStatusCode() == HttpStatus.OK && degreeResp.getBody() != null &&
+                        degreeResp.getBody().get("degree") != -1) {
+                    if (degreeResp.getBody().get("degree") == 1) {
+                        connectionDegrees.put(user.getId(), degreeResp.getBody().get("degree") + "st");
+                    } else if (degreeResp.getBody().get("degree") == 2) {
+                        connectionDegrees.put(user.getId(), degreeResp.getBody().get("degree") + "nd");
+                    } else if (degreeResp.getBody().get("degree") == 3) {
+                        connectionDegrees.put(user.getId(), degreeResp.getBody().get("degree") + "rd");
+                    } else {
+                        connectionDegrees.put(user.getId(), degreeResp.getBody().get("degree") + "th");
+                    }
+                }
+            }
+        }
 
         model.addAttribute("users", users);
         model.addAttribute("sortStrategy", sortStrategy.name());
         model.addAttribute("activeTab", "users");
+        model.addAttribute("connectionDegrees", connectionDegrees);
 
         return "users";
     }
@@ -204,7 +224,21 @@ public class SlayScaleViewController {
 
         boolean isSelf = user.getId().equals(currentUserId);
         boolean isFollowing = currentUser.getFollowing().contains(user);
-
+        ResponseEntity<Map<String, Integer>> degreeResp  = userController.getConnectionDegree(currentUserId,user.getId());
+        if(degreeResp.getStatusCode() == HttpStatus.OK && degreeResp.getBody() != null &&
+                degreeResp.getBody().get("degree") != -1) {
+            if (degreeResp.getBody().get("degree") == 1) {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "st");
+            } else if (degreeResp.getBody().get("degree") == 2) {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "nd");
+            } else if (degreeResp.getBody().get("degree") == 3) {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "rd");
+            } else {
+                model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "th");
+            }
+        } else {
+            model.addAttribute("connectionDegree", "");
+        }
         model.addAttribute("isSelf", isSelf);
         model.addAttribute("isFollowing", isFollowing);
         model.addAttribute("user", user);
