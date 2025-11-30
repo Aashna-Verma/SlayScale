@@ -25,7 +25,12 @@
 
 <!-- Users list -->
 <section>
-    <h2 class="text-4xl font-bold my-6" >@<span th:text="${user.getUsername()}">username</span></h2>
+    <h2 class="text-4xl font-bold my-6">
+        @<span th:text="${user.getUsername()}">username</span>
+        <span class="text-sm text-gray-500 ml-3">
+    <span th:text="${connectionDegree != null ? connectionDegree : '-'}">-</span>
+  </span>
+    </h2>
 
     <form th:if="${!isSelf}" th:action="@{|/SlayScale/user/follow/${user.id}|}" method="post">
         <button type="submit"

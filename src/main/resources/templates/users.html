@@ -55,7 +55,12 @@
            th:href="@{|/SlayScale/users/${u.id}|}"
            style="text-decoration:none; color:inherit;">
 
-            <p class="text-lg font-bold">@<span th:text="${u.username}"></span></p>
+            <p class="text-lg font-bold">
+                @<span th:text="${u.username}"></span>
+                <span class="text-sm text-gray-500 ml-2 p-4">
+                    <span th:text="${connectionDegrees[u.id]}"></span>
+                </span>
+            </p>
             <p>Followers: <span th:text="${u.followerCount}">0</span></p>
             <p>Following: <span th:text="${u.followingCount}">0</span></p>
         </a>
