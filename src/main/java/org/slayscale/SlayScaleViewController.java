@@ -41,13 +41,19 @@ public class SlayScaleViewController {
             body.put("username", username.trim());
             body.put("email", email.trim());
 
+            if (session.getAttribute("currentUserId") != null) {
+                redirectAttributes.addAttribute("error", "Something went wrong, unable to create account.");
+                return "redirect:/SlayScale/signup";
+            }
+
             ResponseEntity<User> response = userController.createUser(body);
             lambdaController.lambdaEmail(email.trim());
 
             if (response.getStatusCode() == HttpStatus.CREATED) {
                 session.setAttribute("currentUserId", response.getBody().getId());
                 return "redirect:/SlayScale/products";
-            } else {
+            }
+            else {
                 redirectAttributes.addAttribute("error", "That email or username is already taken or invalid.");
                 return "redirect:/SlayScale/signup";
             }
@@ -70,9 +76,15 @@ public class SlayScaleViewController {
                                RedirectAttributes redirectAttributes) {
         try {
             ResponseEntity<User> response = userController.getUserByUsername(username.trim());
+            Long currentUserId = (Long) session.getAttribute("currentUserId");
 
             if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
                 redirectAttributes.addAttribute("error", "Invalid username or email.");
+                return "redirect:/SlayScale/login";
+            }
+
+            else if (currentUserId != null){
+                redirectAttributes.addAttribute("error", "Something went wrong, cannot login.");
                 return "redirect:/SlayScale/login";
             }
 
@@ -269,8 +281,8 @@ public class SlayScaleViewController {
         User currentUser = userController.getUserById(currentUserId).getBody();
         Set<Review> reviews = userController.getReviews(id).getBody();
 
-        boolean isSelf = currentUser.getId().equals(currentUserId);
-        boolean isFollowing = currentUser.getFollowing().contains(queriedUser);
+        boolean isSelf = currentUserId != null && Objects.requireNonNull(queriedUser).getId().equals(currentUserId);
+        boolean isFollowing = currentUser != null && currentUser.getFollowing().contains(queriedUser);
         ResponseEntity<Map<String, Integer>> degreeResp  = userController.getConnectionDegree(currentUserId,queriedUser.getId());
 
 
