@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" th:href="@{/global.css}" />
+</head>
+<body>
+<form class="form" th:action="@{/SlayScale/login}" method="post">
+    <h1>Login</h1>
+
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" placeholder="Enter your username" required />
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" placeholder="Enter your email" required />
+
+    <div class="rules">
+        <ul>
+            <li>Enter a username and email you registered with</li>
+        </ul>
+    </div>
+
+    <button type="submit">Login</button>
+
+    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+</form>
+</body>
+</html>
