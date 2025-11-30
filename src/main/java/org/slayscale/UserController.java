@@ -70,6 +70,11 @@ public class UserController {
         return userRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        return userRepository.findByUsername(username).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody Map<String, String> body) {
         String username = body.get("username");
