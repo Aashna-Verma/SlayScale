@@ -269,8 +269,8 @@ public class SlayScaleViewController {
         User currentUser = userController.getUserById(currentUserId).getBody();
         Set<Review> reviews = userController.getReviews(id).getBody();
 
-        boolean isSelf = currentUser.getId().equals(currentUserId);
-        boolean isFollowing = currentUser.getFollowing().contains(queriedUser);
+        boolean isSelf = currentUserId != null && Objects.requireNonNull(queriedUser).getId().equals(currentUserId);
+        boolean isFollowing = currentUser != null && currentUser.getFollowing().contains(queriedUser);
         ResponseEntity<Map<String, Integer>> degreeResp  = userController.getConnectionDegree(currentUserId,queriedUser.getId());
 
 
