@@ -156,4 +156,5 @@ class ProductControllerAssertTests {
 
         assertEquals(HttpStatus.BAD_REQUEST, res.getStatusCode());
     }
+
 }
