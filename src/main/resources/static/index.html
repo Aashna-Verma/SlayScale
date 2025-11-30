@@ -6,52 +6,26 @@
     <title>SlayScale</title>
     <link rel="stylesheet" href="/global.css" />
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    <style>
-        body {
-            text-align: center;
-            padding: 3rem;
-        }
-
-        main {
-            margin-top: 2rem;
-        }
-
-        .description {
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto 2rem;
-            color: #555;
-        }
-
-        .btn {
-            display: inline-block;
-            width: fit-content;
-            text-decoration: none;
-        }
-
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
-<body>
-<header>
-    <h1>Welcome to SlayScale</h1> 
-</header>
+<body class="min-h-screen overflow-x-hidden flex items-center justify-center">
 
-<main>
-    <section>
-        <p class="description">
-            <b>SlayScale</b> is a community-driven platform where users share honest reviews
-            and discover products that truly deliver. Join us to rate, review, and explore
-            what’s worth your time. Powered by genuine voices, not algorithms.
-        </p>
+<div class="background opacity-75 -z-10 rounded-full top-[40vh] left-[10vw] absolute bg-[#ADE48B] blur-[120px] w-200 h-120"></div>
+<div class="background opacity-65 -z-10 rounded-full top-[20vh] left-[45vw] absolute bg-[#FF47A0] blur-[100px] w-130 h-96"></div>
 
-        <a href="/SlayScale/signup" class="btn">Sign Up</a>
+<div class="flex flex-col justify-center p-4 md:p-10 max-w-180 gap-y-20">
+    <img class="h-auto w-full max-w-100 mx-auto pb-5" src="/assets/slayscale-wordmark-big.png"/>
+
+    <p class="text-center text-2xl">
+        SlayScale is a community-driven platform where users share honest reviews and discover products that truly deliver. Join us to rate, review, and explore what’s worth your time. Powered by genuine voices, not algorithms.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-8 px-10">
+        <a href="/SlayScale/signup" class="btn btn-outline">Create Account</a>
         <a href="/SlayScale/login" class="btn">Login</a>
-    </section>
-</main>
+    </div>
+</div>
 
-<footer>
-    <p>&copy; 2025 SlayScale. All rights reserved.</p>
-</footer>
 </body>
 </html>
