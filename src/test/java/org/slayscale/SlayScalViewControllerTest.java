@@ -58,5 +58,4 @@ class SlayScaleViewControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/SlayScale/products?error=Invalid+category+or+URL."));
     }
-
 }
