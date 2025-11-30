@@ -72,7 +72,7 @@
     <div th:each="r : ${reviews}" class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 ">
         <div>
             <span th:each="i : ${#numbers.sequence(1, r.rating)}">★</span>
-            <span th:each="i : ${#numbers.sequence(r.rating + 1, 5)}">☆</span>
+            <span th:if="${r.rating < 5}" th:each="i : ${#numbers.sequence(1, 5 - r.rating)}">☆</span>
             <span class="muted" th:text="'(' + ${r.rating} + '/5)'"></span>
         </div>
         <div><b>Text:</b> <span th:text="${r.text}">Great!</span></div>

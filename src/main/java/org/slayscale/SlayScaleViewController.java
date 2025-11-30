@@ -235,7 +235,7 @@ public class SlayScaleViewController {
                 ResponseEntity<Map<String, Integer>> degreeResp = userController.getConnectionDegree(currentUserId,
                         user.getId());
                 if (degreeResp.getStatusCode() == HttpStatus.OK && degreeResp.getBody() != null &&
-                        degreeResp.getBody().get("degree") != -1) {
+                        degreeResp.getBody().get("degree") >= 1) {
                     if (degreeResp.getBody().get("degree") == 1) {
                         connectionDegrees.put(user.getId(), degreeResp.getBody().get("degree") + "st");
                     } else if (degreeResp.getBody().get("degree") == 2) {
@@ -289,7 +289,7 @@ public class SlayScaleViewController {
 
         ResponseEntity<Map<String, Integer>> degreeResp  = userController.getConnectionDegree(currentUserId,queriedUser.getId());
         if(degreeResp.getStatusCode() == HttpStatus.OK && degreeResp.getBody() != null &&
-                degreeResp.getBody().get("degree") != -1) {
+                degreeResp.getBody().get("degree") >= 1) {
             if (degreeResp.getBody().get("degree") == 1) {
                 model.addAttribute("connectionDegree", degreeResp.getBody().get("degree") + "st");
             } else if (degreeResp.getBody().get("degree") == 2) {
