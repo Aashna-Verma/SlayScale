@@ -10,14 +10,14 @@ Each product is identified by its online listing link and categorized by type. U
 - Reviewer similarity based on Jaccard distance
 - Degree of separation between users in the follow network
 
-## Previous Sprint
+## Milestone 1
 - Able to create a new user and add a review by making HTTP requests to the backend
 - Implemented `User`, `Product`, and `Review` JPA entities, along with `UserController` and `ProductController`, made for RESTful API endpoints
 - CRUD operations for products and reviews, including creating a user and adding reviews for users
 - Validation and Error Handling: Unit tests for entities and controllers, input validation for URLs, null checks for entities and exception handling
 - Added username uniqueness checks and related validation
 
-## Current Sprint
+## Milestone 2
 - Added full follow system features, including UI and backend logic for:
   - Following and unfollowing users
   - Viewing followers and following lists
@@ -37,10 +37,13 @@ Each product is identified by its online listing link and categorized by type. U
 - Improved error messages and unified response structure
 - Added more robust unit tests for new controller paths, validation logic, and edge cases
 
-## Next Sprint Plan
-- Implement a sign-in form for existing users to login
-- Implement an SPA to support the client-side
-- Completing final refinements and refactoring across the entire codebase
+## Milestone 3
+- Implemented a sign-in form for existing users to login
+- Added feature to let users see connection degrees between people (e.g. first-, second-, third-degree relationships)
+- Improved the UI appearance making the app more visually appealing and user-friendly
+- Added more unit tests covering the new controller paths, validation behavior, and edge cases
+- Addressed several bugs affecting the UI and overall codebase flow
+- Completed final refinements and refactoring across the entire codebase
 
 ## Database Schema
 ![database-schema.png](diagrams/database-schema.png)
