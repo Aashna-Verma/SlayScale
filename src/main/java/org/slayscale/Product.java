@@ -92,4 +92,5 @@ public class Product {
         if (review == null) throw new IllegalArgumentException("Review cannot be null.");
         this.reviews.remove(review);
     }
+
 }

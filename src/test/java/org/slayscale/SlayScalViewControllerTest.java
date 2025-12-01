@@ -112,5 +112,4 @@ class SlayScaleViewControllerIntegrationTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("(5/5)")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("tester")));
     }
-
 }
