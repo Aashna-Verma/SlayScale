@@ -97,15 +97,17 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Product> createProduct(@RequestBody Map<String,String> body) {
+        String name = body.get("name");
+        String imageUrl = body.get("imageUrl");
         String url = body.get("url");
         String category = body.get("category");
-        if (url == null || url.isBlank() || category == null || category.isBlank()) {
+        if (name == null || name.isBlank() || url == null || url.isBlank() || category == null || category.isBlank()) {
             return ResponseEntity.badRequest().build();
         }
 
-        Category parsed;
+        Category parsedCategory;
         try {
-            parsed = Category.valueOf(category.toUpperCase());
+            parsedCategory = Category.valueOf(category.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -115,7 +117,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        Product saved = productRepository.save(new Product(parsed, url.trim()));
+        Product saved = productRepository.save(new Product(parsedCategory, name.trim(), url.trim(), imageUrl.trim()));
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

@@ -14,8 +14,14 @@ public class Product {
 
     private Category category;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
+    private String name;
+
+    @Column(unique = true, nullable = false, length = 2048)
     private String url;
+
+    @Column(length = 2048)
+    private String imageUrl;
 
     @OneToMany(mappedBy = "product", orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -24,9 +30,11 @@ public class Product {
     protected Product() {
     }
 
-    public Product(Category category, String url) {
+    public Product(Category category, String name, String url, String imageUrl) {
         setCategory(category);
+        setName(name);
         setUrl(url);
+        this.imageUrl = imageUrl;
         this.reviews = new HashSet<>();
     }
 
@@ -61,6 +69,15 @@ public class Product {
         this.category = category;
     }
 
+    public String getName() {return name;}
+
+    public void setName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Product name cannot be null or blank.");
+        }
+        this.name = name;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -71,6 +88,12 @@ public class Product {
         }
         this.url = url;
     }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String url) {this.imageUrl = url;}
 
     public Set<Review> getReviews() {
         return reviews;

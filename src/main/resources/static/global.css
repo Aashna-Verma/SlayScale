@@ -10,7 +10,6 @@ body {
     min-height: 100vh;
 }
 
-button,
 .btn {
     width: 100%;
     font-size: 1rem;
@@ -32,7 +31,7 @@ button,
     background: var(--pink);
     box-shadow: 0 3px 0 0 var(--pink-dark), 0 -7px 10px 0 rgba(255, 255, 255, 0.10) inset, 0 4px 9.4px 0 rgba(0, 0, 0, 0.25);
 }
-button:hover,
+
 .btn:hover{
     background-color: lightpink;
 }
@@ -49,6 +48,9 @@ button:hover,
     backdrop-filter: blur(100px);
 }
 
+.fallback {
+    background-color: #e5e7eb; /* Tailwind gray-200 */
+}
 
 
 label {

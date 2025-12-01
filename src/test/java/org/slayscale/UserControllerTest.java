@@ -55,10 +55,10 @@ public class UserControllerTest {
         user4.setId(4L);
 
         // Mock products
-        product1 = new Product(Category.ELECTRONICS, "https://example.com/product");
+        product1 = new Product(Category.ELECTRONICS, "Product", "https://example.com/product", null);
         product1.setId(50L);
 
-        product2 = new Product(Category.BOOKS, "https://example.com/book");
+        product2 = new Product(Category.BOOKS,"Book", "https://example.com/book", null);
         product2.setId(51L);
 
         // Mock review for user1

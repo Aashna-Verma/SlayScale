@@ -6,28 +6,57 @@
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="stylesheet" th:href="@{/global.css}" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
-<body>
+<body class="overflow-x-hidden">
+
+<div class="blurry-bg w-screen h-screen -z-10 top-0 left-0 absolute">
+    <div class="background opacity-75 -z-10 rounded-full top-[40vh] left-[10vw] absolute bg-[#ADE48B] blur-[120px] w-200 h-120"></div>
+    <div class="background opacity-65 -z-10 rounded-full top-[20vh] left-[45vw] absolute bg-[#FF47A0] blur-[100px] w-130 h-96"></div>
+</div>
 
 <!-- Nav -->
 <div th:replace="fragments/navbar :: slayNav(${activeTab})"></div>
 
+<div class="flex flex-col sm:flex-row gap-10" >
 <!-- Product info -->
-<section >
-    <h1 class="text-6xl mt-6 mb-2 font-bold">
-        #<span th:text="${product.id}">1</span> Product
-    </h1>
-    <div class="text-xs mb-5 p-1.5 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
-    <p><b>URL:</b> <a th:href="${product.url}" th:text="${product.url}">https://example</a></p>
+<section class="card-bg p-10 w-full max-w-96 flex flex-col justify-between h-[80vh]">
+    <div class="flex flex-col gap-2">
+
+        <div class="w-full h-70 bg-gray-200 rounded-3xl overflow-hidden border border-pink-300">
+            <img th:if="${product.imageUrl != null}"
+                 th:src="${product.imageUrl}"
+                 class="w-full h-full object-cover"
+                 onerror="this.style.display='none'; this.parentElement.classList.add('fallback');">
+        </div>
+
+        <div class="text-xs py-1 px-2 rounded-md bg-pink-200 uppercase w-fit" th:text="${product.category}">ELECTRONICS</div>
+        <h1 class="text-4xl font-bold" th:text="${product.id} + ' ' + ${product.name}">name</h1>
+    </div>
+
+
+    <div class="flex flex-col gap-4">
+    <a th:href="${product.url}" th:target="_blank">
+        <button type="button"
+                class="btn btn-outline">
+            Link
+        </button>
+    </a>
+
+    <button type="button"
+            class="btn"
+            onclick="openAddReviewModal()">
+        <img class="size-6" src="/assets/plus.svg"/> Add Review
+    </button>
+    </div>
 </section>
 
 <!-- Reviews -->
-<section>
+<section class="w-full">
     <h2 class="text-4xl font-bold my-6" >Reviews</h2>
 
     <!-- Sort / Filter controls -->
-    <form method="get" class="controls flex flex-col sm:flex-row space-x-6">
+    <form method="get" class="controls flex flex-col sm:flex-row space-x-6 mb-10">
         <div class="flex flex-col w-full">
         <label class="uppercase"  for="sort">Sort</label>
         <select class="!rounded-full !border-pink-400 px-4" id="sort" name="sort" th:value="${sort}" onchange="this.form.submit()">
@@ -55,38 +84,157 @@
 
     <div th:if="${#lists.isEmpty(reviews)}" class="muted">No reviews yet.</div>
 
-    <div class="flex flex-wrap gap-4">
-    <div th:each="r : ${reviews}" class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 ">
-        <div>
-            <span th:each="i : ${#numbers.sequence(1, r.rating)}">★</span>
-            <span th:if="${r.rating < 5}" th:each="i : ${#numbers.sequence(1, 5 - r.rating)}">☆</span>
-            <span class="muted" th:text="'(' + ${r.rating} + '/5)'"></span>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="card-bg !rounded-3xl flex flex-col w-full p-4" th:each="r : ${reviews}">
+            <!-- Link to user profile -->
+            <a class="font-bold text-lg" th:href="@{/SlayScale/users/{id}(id=${r.author.id})}">
+                <p>@<span th:text="${r.author.username}">author</span></p>
+            </a>
+
+            <!-- Stars + rating -->
+            <div>
+                <!-- Filled stars -->
+                <span class="text-pink-500" th:each="i : ${#numbers.sequence(1, r.rating)}">
+                    <i class="bi bi-star-fill fs-3"></i>
+                </span>
+
+                <!-- Empty stars -->
+                <span class="text-pink-500" th:if="${r.rating < 5}"
+                      th:each="i : ${#numbers.sequence(1, 5 - r.rating)}">
+                    <i class="bi bi-star fs-3"></i>
+                </span>
+            </div>
+
+            <!-- Review text -->
+            <p th:text="${r.text}">Great!</p>
         </div>
-        <div><b>Text:</b> <span th:text="${r.text}">Great!</span></div>
-        <div class="muted">
-            <span>Review ID: </span><span th:text="${r.id}">10</span>
-        </div>
-        <p>Author:<span th:text="${r.author.getUsername()}">author</span></p>
-    </div>
     </div>
 </section>
+</div>
 
-<!-- Add Review Form -->
-<form class="form add-product" th:action="@{|/SlayScale/products/${product.id}/reviews|}" method="post">
-    <h3>Add a Review</h3>
+<!-- Add Review Modal -->
+<div id="addReviewModal"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
 
-    <!-- Alerts -->
-    <div th:if="${error}" class="msg error" th:text="${error}"></div>
-    <div th:if="${success}" class="msg success" th:text="${success}"></div>
+    <div class="card-bg !bg-white/70 m-4 flex flex-col space-y-10 w-full max-w-150 p-10 relative">
 
-    <label for="rating">Rating (1–5)</label>
-    <input id="rating" name="rating" type="number" min="1" max="5" required />
+        <!-- Close button -->
+        <button type="button"
+                class="absolute top-10 right-10 text-gray-500 hover:text-gray-800"
+                onclick="closeAddReviewModal()">
+            ✕
+        </button>
 
-    <label for="text">Text</label>
-    <textarea id="text" name="text" rows="4" placeholder="Write your thoughts..." required></textarea>
+        <h3 class="text-2xl font-bold">Add a Review</h3>
 
-    <button type="submit">Post Review</button>
-    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
-</form>
+        <form class="flex flex-col space-y-10"
+              th:action="@{|/SlayScale/products/${product.id}/reviews|}"
+              method="post">
+
+            <div>
+                <label for="rating">Rating (1–5)</label>
+
+                <!-- Hidden input that stores final value -->
+                <input id="rating" name="rating" type="number" min="1" max="5" required hidden>
+
+                <!-- Visible star rating UI -->
+                <div id="starRating" class="d-flex gap-1 text-pink-500">
+                    <i class="bi bi-star text-4xl" data-value="1"></i>
+                    <i class="bi bi-star text-4xl" data-value="2"></i>
+                    <i class="bi bi-star text-4xl" data-value="3"></i>
+                    <i class="bi bi-star text-4xl" data-value="4"></i>
+                    <i class="bi bi-star text-4xl" data-value="5"></i>
+                </div>
+            </div>
+
+            <div>
+                <label for="text">Text</label>
+                <textarea id="text" name="text" rows="4" placeholder="Write your thoughts..." required></textarea>
+
+            </div>
+
+            <input type="hidden"
+                   th:name="${_csrf?.parameterName}"
+                   th:value="${_csrf?.token}" />
+
+            <div class="flex justify-end gap-4 mt-4">
+                <button type="button"
+                        class="btn btn-outline"
+                        onclick="closeAddReviewModal()">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="btn">
+                    Add Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const stars = document.querySelectorAll('#starRating i');
+    const ratingInput = document.getElementById('rating');
+    let selectedRating = 0;
+
+    // Highlight stars up to index
+    function highlightStars(upTo) {
+        stars.forEach(star => {
+            const starValue = parseInt(star.getAttribute('data-value'));
+            if (starValue <= upTo) {
+                star.classList.remove('bi-star');
+                star.classList.add('bi-star-fill');
+            } else {
+                star.classList.remove('bi-star-fill');
+                star.classList.add('bi-star');
+            }
+        });
+    }
+
+    // Hover effect
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+            const value = parseInt(star.getAttribute('data-value'));
+            highlightStars(value);
+        });
+
+        star.addEventListener('mouseout', () => {
+            highlightStars(selectedRating);
+        });
+
+        // Click event
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.getAttribute('data-value'));
+            ratingInput.value = selectedRating;
+            highlightStars(selectedRating);
+        });
+    });
+
+    function openAddReviewModal() {
+        const modal = document.getElementById("addReviewModal");
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+    }
+
+    function closeAddReviewModal() {
+        const modal = document.getElementById("addReviewModal");
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    // Close when clicking the backdrop
+    document.getElementById("addReviewModal").addEventListener("click", function (event) {
+        if (event.target === this) {
+            closeAddReviewModal();
+        }
+    });
+
+    // Close on Escape key
+    window.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeAddReviewModal();
+        }
+    });
+</script>
 </body>
 </html>
