@@ -142,12 +142,16 @@ public class SlayScaleViewController {
 
     @PostMapping("/products")
     public String createProduct(@RequestParam("category") String category,
+                                @RequestParam("name") String name,
                                 @RequestParam("url") String url,
+                                @RequestParam("imageUrl" ) String imageUrl,
                                 RedirectAttributes ra) {
         try {
             Map<String, String> body = Map.of(
                     "category", category.trim(),
-                    "url", url.trim()
+                    "name", name.trim(),
+                    "url", url.trim(),
+                    "imageUrl", imageUrl.trim()
             );
 
             ResponseEntity<Product> resp = productController.createProduct(body);

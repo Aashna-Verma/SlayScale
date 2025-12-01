@@ -12,18 +12,18 @@ public class ProductTest {
 
     @BeforeEach
     public void setUp() {
-        product = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
+        product = new Product(Category.ELECTRONICS, "Led Patel signs", "http://costco.ca/led-patel-signs/p-24", null);
         user = new User("rajesh@gmail.com", "rajesh");
         review = new Review(user, 4, "vhat a beautiful sign", product);
     }
 
     @Test
     public void equals() {
-        Product p2 = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
+        Product p2 = new Product(Category.ELECTRONICS, "Led Patel signs", "http://costco.ca/led-patel-signs/p-24", null);
         assertEquals(product, p2); // products with same URL should be equal
         assertEquals(product.hashCode(), p2.hashCode()); // hashCode must match
 
-        Product p3 = new Product(Category.ELECTRONICS, "http://a");
+        Product p3 = new Product(Category.ELECTRONICS, "a","http://a", null);
         assertNotEquals(product, p3);
         assertNotEquals(product.hashCode(), p3.hashCode());
     }
@@ -43,11 +43,26 @@ public class ProductTest {
     }
 
     @Test
-    public void setUrl() {
+    public void getSetName() {
+        assert (product.getName() == "Led Patel signs");
+        product.setName("Patel LED signs");
+        assert (product.getName() == "Patel LED signs");
+        assertThrows(IllegalArgumentException.class, () -> product.setName(null));
+    }
+
+    @Test
+    public void getSetUrl() {
         assert (product.getUrl().equals("http://costco.ca/led-patel-signs/p-24"));
         product.setUrl("http://amazon.ca/kindle/p-99");
         assert (product.getUrl().equals("http://amazon.ca/kindle/p-99"));
         assertThrows(IllegalArgumentException.class, () -> product.setUrl(" "));
+    }
+
+    @Test
+    public void getSetImageUrl() {
+        assertNull(product.getImageUrl());
+        product.setImageUrl("http://amazon.ca/kindle/p-99");
+        assert (product.getImageUrl().equals("http://amazon.ca/kindle/p-99"));
     }
 
     @Test

@@ -7,27 +7,19 @@
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
+<body class="overflow-x-hidden">
+
+<div class="blurry-bg fixed w-screen h-screen -z-10 top-0 left-0 absolute">
+    <div class="background opacity-75 -z-10 rounded-full top-[40vh] left-[10vw] absolute bg-[#ADE48B] blur-[120px] w-200 h-120"></div>
+    <div class="background opacity-65 -z-10 rounded-full top-[20vh] left-[45vw] absolute bg-[#FF47A0] blur-[100px] w-130 h-96"></div>
+</div>
 
 <!-- Nav -->
-<nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
-    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
-        <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
-        <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
-    </div>
-    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
-    <div class="flex justify-end w-12">
-        <a th:href="@{/SlayScale/logout}">
-            <img src="/assets/log-out.svg">
-        </a>
-    </div>
-</nav>
-
+<div th:replace="fragments/navbar :: slayNav(${activeTab})"></div>
 
 <!-- Users list -->
 <section>
-
-    <form method="get" th:action="@{/SlayScale/users}" class="controls">
+    <form class="mb-10 max-w-96" method="get" th:action="@{/SlayScale/users}" >
         <label class="uppercase" for="sort">Sort</label>
 
         <select class="!rounded-full !border-pink-400 px-4"
@@ -46,12 +38,12 @@
         </select>
     </form>
 
-    <h2 class="text-4xl font-bold my-6">All Users</h2>
+
     <div th:if="${#lists.isEmpty(users)}" class="muted">No users yet.</div>
 
-    <div class="flex flex-wrap gap-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <a th:each="u : ${users}"
-           class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 "
+           class="card-bg !rounded-4xl flex flex-col w-full border border-pink-200 p-4 "
            th:href="@{|/SlayScale/users/${u.id}|}"
            style="text-decoration:none; color:inherit;">
 

@@ -46,10 +46,10 @@ public class UserTest {
 
     @Test
     void getSimilarity() {
-        Product p1 = new Product(Category.BOOKS, "https://a.co/d/emAuUNh");
-        Product p2 = new Product(Category.BOOKS, "https://a.co/d/fJIJBiG");
-        Product p3 = new Product(Category.BOOKS, "https://a.co/d/3UzLhtu");
-        Product p4 = new Product(Category.BOOKS, "https://a.co/d/6l2BKIa");
+        Product p1 = new Product(Category.BOOKS, "Product", "https://a.co/d/emAuUNh", null);
+        Product p2 = new Product(Category.BOOKS, "Product", "https://a.co/d/fJIJBiG", null);
+        Product p3 = new Product(Category.BOOKS, "Product", "https://a.co/d/3UzLhtu", null);
+        Product p4 = new Product(Category.BOOKS, "Product", "https://a.co/d/6l2BKIa", null);
 
         User u2 = new User("gavinbelson@hooli.com", "Gavin_Belson");
 

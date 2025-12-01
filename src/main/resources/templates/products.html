@@ -7,77 +7,173 @@
     <link rel="stylesheet" th:href="@{/global.css}" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
+
+<body class="overflow-x-hidden">
+
+<div class="blurry-bg fixed w-screen h-screen -z-10 top-0 left-0 absolute">
+    <div class="background opacity-75 -z-10 rounded-full top-[40vh] left-[10vw] absolute bg-[#ADE48B] blur-[120px] w-200 h-120"></div>
+    <div class="background opacity-65 -z-10 rounded-full top-[20vh] left-[45vw] absolute bg-[#FF47A0] blur-[100px] w-130 h-96"></div>
+</div>
 
 <!-- Nav -->
-<nav class="mt-3 mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
-    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
-        <a class="tab" th:classappend="${activeTab == 'products'} ? ' active'" th:href="@{/SlayScale/products}">Products</a>
-        <a class="tab" th:classappend="${activeTab == 'users'} ? ' active'" th:href="@{/SlayScale/users}">Users</a>
-    </div>
-    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
-    <div class="flex justify-end w-12">
-        <a th:href="@{/SlayScale/logout}">
-            <img src="/assets/log-out.svg">
-        </a>
-    </div>
-</nav>
+<div th:replace="fragments/navbar :: slayNav(${activeTab})"></div>
 
-<!-- Product list -->
+
 <section>
     <h2 class="text-4xl font-bold my-6">All Products</h2>
-    <!-- Filter by category -->
-    <form th:action="@{/SlayScale/products}" method="get" class="mb-4">
-        <label for="categoryFilter" class="mr-2 font-semibold uppercase">Filter by category:</label>
-        <select id="categoryFilter"
-                name="category"
-                onchange="this.form.submit()"
-                class="!rounded-full !border-pink-400 px-4">
 
-        <option value="">All</option>
-            <option th:each="cat : ${categories}"
-                    th:value="${cat.name()}"
-                    th:text="${cat.name()}"
-                    th:selected="${selectedCategory == cat.name()}">
-            </option>
-        </select>
-    </form>
-    <div th:if="${#lists.isEmpty(products)}" class="muted">No products yet.</div>
+    <div class="flex justify-between gap-10 items-center mb-10">
+        <!-- Filter by category -->
+        <form th:action="@{/SlayScale/products}" method="get" class="w-full max-w-75 ">
+            <label for="categoryFilter" class="mr-2 font-semibold uppercase">Filter by category:</label>
+            <select id="categoryFilter"
+                    name="category"
+                    onchange="this.form.submit()"
+                    class="!rounded-full !border-pink-400 px-4">
 
-    <div class="flex flex-wrap gap-2">
+                <option value="">All</option>
+                <option th:each="cat : ${categories}"
+                        th:value="${cat.name()}"
+                        th:text="${cat.name()}"
+                        th:selected="${selectedCategory == cat.name()}">
+                </option>
+            </select>
+        </form>
+
+        <!-- Add New Product -->
+        <button type="button"
+                class="btn !text-3xl font-bold !w-18 !h-16 !p-0 flex items-center justify-center"
+                onclick="openAddProductModal()">
+            <img class="size-8" src="/assets/plus.svg"/>
+        </button>
+
+
+    </div>
+
+    <!-- Product list -->
+    <div th:if="${#lists.isEmpty(products)}" class=" muted">No products yet.</div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <a th:each="p : ${products}"
-           class="card flex flex-col w-full sm:w-60 md:w-72 lg:w-80 border border-pink-200 p-4 "
+           class="card-bg !rounded-4xl flex flex-col w-full p-4 gap-2 "
            th:href="@{|/SlayScale/products/${p.id}|}"
            style="text-decoration:none; color:inherit;">
-            <p>ID: <span th:text="${p.id}">0</span></p>
-            <p>Category: <span th:text="${p.category}">0</span></p>
-            <p>URL: <span th:text="${p.url}">link</span></p>
+
+            <div class="w-full h-60 bg-gray-200 rounded-xl overflow-hidden border border-pink-300">
+                <img th:if="${p.imageUrl != null}"
+                     th:src="${p.imageUrl}"
+                     class="w-full h-full object-cover"
+                     onerror="this.style.display='none'; this.parentElement.classList.add('fallback');">
+            </div>
+            <p class="bg-pink-200 text-xs rounded-md p-1 px-2 w-fit" th:text="${p.category}">0</p>
+            <p class="text-lg font-bold" th:text="${p.name}">0</p>
+            <button type="button" class="btn float-right">View</button>
         </a>
     </div>
 </section>
 
-<!-- Add product form -->
-<form class="form add-product" th:action="@{/SlayScale/products}" method="post">
-    <h3>Add a Product</h3>
+<!-- Add Product Modal -->
+<div id="addProductModal"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
 
-    <!-- Alerts -->
-    <div th:if="${error}" class="msg error" th:text="${error}"></div>
-    <div th:if="${success}" class="msg success" th:text="${success}"></div>
+    <div class="card-bg !bg-white/70 m-4 flex flex-col space-y-10 w-full max-w-150 p-10 relative">
 
-    <label for="url">Product URL</label>
-    <input id="url" name="url" type="url" placeholder="https://example.com/item" />
+        <!-- Close button -->
+        <button type="button"
+                class="absolute top-10 right-10 text-gray-500 hover:text-gray-800"
+                onclick="closeAddProductModal()">
+            ✕
+        </button>
 
-    <label for="category">Category</label>
-    <select id="category" name="category" required>
-        <option value="">-- Select a category --</option>
-        <option th:each="cat : ${categories}"
-                th:value="${cat.name()}"
-                th:text="${cat.name()}">
-        </option>
-    </select>
+        <h3 class="text-2xl font-bold">Add a Product</h3>
 
-    <button type="submit">Add Product</button>
-    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
-</form>
+        <form class="flex flex-col space-y-10"
+              th:action="@{/SlayScale/products}"
+              method="post">
+
+            <div>
+                <label for="name" class="font-semibold">Name*</label>
+                <input id="name"
+                       name="name"
+                       type="test"
+                       placeholder="product name"/>
+            </div>
+
+            <div>
+                <label for="url" class="font-semibold">Product URL*</label>
+                <input id="url"
+                       name="url"
+                       type="url"
+                       placeholder="https://example.com/item-link"/>
+            </div>
+
+            <div>
+                <label for="imageUrl" class="font-semibold">Product Image URL</label>
+                <input id="imageUrl"
+                       name="imageUrl"
+                       type="url"
+                       placeholder="https://example.com/item-image"/>
+            </div>
+
+            <div >
+                <label for="category" class="font-semibold">Category*</label>
+                <select id="category"
+                        name="category"
+                        required>
+                    <option value="">Select a category</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.name()}"
+                            th:text="${cat.name()}">
+                    </option>
+                </select>
+            </div>
+
+            <input type="hidden"
+                   th:name="${_csrf?.parameterName}"
+                   th:value="${_csrf?.token}" />
+
+            <div class="flex justify-end gap-4 mt-4">
+                <button type="button"
+                        class="btn btn-outline"
+                        onclick="closeAddProductModal()">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="btn">
+                    Add Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddProductModal() {
+        const modal = document.getElementById("addProductModal");
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+    }
+
+    function closeAddProductModal() {
+        const modal = document.getElementById("addProductModal");
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    // Close when clicking the backdrop
+    document.getElementById("addProductModal").addEventListener("click", function (event) {
+        if (event.target === this) {
+            closeAddProductModal();
+        }
+    });
+
+    // Close on Escape key
+    window.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeAddProductModal();
+        }
+    });
+</script>
+
 </body>
 </html>

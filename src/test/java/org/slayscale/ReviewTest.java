@@ -19,7 +19,7 @@ class ReviewTest {
     @BeforeEach
     public void setUp() {
         user = new User("jianyang@piedpiper.com", "Jian_Yang");
-        product = new Product(Category.ELECTRONICS, "http://costco.ca/led-patel-signs/p-24");
+        product = new Product(Category.ELECTRONICS, "Led Patel Signs", "http://costco.ca/led-patel-signs/p-24", null);
         review = new Review(user, 3, "Good product",product);
     }
 
@@ -88,7 +88,7 @@ class ReviewTest {
 
     @Test
     void setProduct() {
-        Product product2 = new Product(Category.BOOKS, "http://amazon.com/some-book/p-45");
+        Product product2 = new Product(Category.BOOKS, "Books", "http://amazon.com/some-book/p-45", null);
         review.setProduct(product2);
         assertEquals(product2, review.getProduct());
 

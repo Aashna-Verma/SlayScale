@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="slayNav(activeTab)"
+     class="mb-8 py-4 px-8 bg-pink-200 border border-pink-400 rounded-full flex justify-between items-center">
+
+    <div class="flex gap-1 w-12 flex-col md:flex-row md:gap-6">
+        <a class="tab"
+           th:classappend="${activeTab} == 'products' ? ' active'"
+           th:href="@{/SlayScale/products}">
+            Products
+        </a>
+
+        <a class="tab"
+           th:classappend="${activeTab} == 'users' ? ' active'"
+           th:href="@{/SlayScale/users}">
+            Users
+        </a>
+    </div>
+
+    <img class="h-8 md:h-12" src="/assets/slayscale-wordmark.svg"/>
+
+    <div class="flex justify-end w-12">
+        <a th:href="@{/SlayScale/logout}">
+            <img src="/assets/log-out.svg">
+        </a>
+    </div>
+</nav>
+</body>
+</html>
